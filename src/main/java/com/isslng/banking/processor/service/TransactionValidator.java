@@ -28,8 +28,13 @@ public class TransactionValidator {
 		for(String field: fields.keySet()){
 			mandatory = fields.get(field);
 			if(mandatory){
+				try{
 				value = transactionFields.get(field);
 				if(value == null || value.equals("")){
+					throw new TransactionValidatorException(
+							String.format("Mandatory field %s is null or empty", field));
+				}
+				}catch(NullPointerException ex){
 					throw new TransactionValidatorException(
 							String.format("Mandatory field %s is null or empty", field));
 				}

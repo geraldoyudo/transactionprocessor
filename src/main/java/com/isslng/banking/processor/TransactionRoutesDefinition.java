@@ -16,9 +16,14 @@ public class TransactionRoutesDefinition extends RouteBuilder{
 		// Access us using http://localhost:8080/camel/hello
         from("servlet:///process?httpMethodRestrict=POST")
         .unmarshal().json(JsonLibrary.Jackson, TransactionInput.class)
+        .to("bean:transactionValidator")
+        .to("bean:transactionInputManager?method=save")
+        .setProperty("transactionInput").spel("#{body}")
         .recipientList(spel("jms:#{@transactionTypeManager.getPrimaryProcessor"
-        		+ "(request.request.getParameter('operationName'))}"));
-		
+        		+ "(request.body.code)}?jmsMessageType=Object"))
+		.to("bean:transactionOutputProcessor")
+		.to("bean:transactionOutputProcessor") //format
+		.marshal().json(JsonLibrary.Jackson);
 	}
 
 }

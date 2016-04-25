@@ -1,9 +1,10 @@
 package com.isslng.banking.processor.persistence;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
-public class TransactionInput {
+public class TransactionInput implements Serializable{
 	private String id;
 	private String code;
 	private String ipAddress;
