@@ -1,5 +1,6 @@
 package com.isslng.banking.processor.persistence;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.isslng.banking.processor.entities.TransactionStatus;
 
 @Document
-public class TransactionOutput {
+public class TransactionOutput implements Serializable {
 	@Id
 	private String id;
 	@DBRef

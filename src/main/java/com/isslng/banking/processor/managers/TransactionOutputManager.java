@@ -8,5 +8,5 @@ import com.isslng.banking.processor.persistence.TransactionOutputRepository;
 @Component
 public class TransactionOutputManager extends  BasicRepositoryManager
 <TransactionOutputRepository, TransactionOutput, String> {
-
+	
 }

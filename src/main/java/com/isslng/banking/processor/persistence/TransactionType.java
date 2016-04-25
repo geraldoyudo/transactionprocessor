@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
@@ -17,8 +18,10 @@ public class TransactionType {
 	@Indexed(unique = true)
 	private String code;
 	@NotNull
-	private String primaryProcessor;
-	private Set<String> secondaryProcessor;
+	@DBRef
+	private Processor primaryProcessor;
+	@DBRef
+	private Set<Processor> secondaryProcessors;
 	private Map<String,Boolean> inputFields = new HashMap<>();
 	private Map<String, Boolean> outputFields = new HashMap<>();
 	
@@ -34,17 +37,17 @@ public class TransactionType {
 	public void setCode(String code) {
 		this.code = code;
 	}
-	public String getPrimaryProcessor() {
+	public Processor getPrimaryProcessor() {
 		return primaryProcessor;
 	}
-	public void setPrimaryProcessor(String primaryProcessor) {
+	public void setPrimaryProcessor(Processor primaryProcessor) {
 		this.primaryProcessor = primaryProcessor;
 	}
-	public Set<String> getSecondaryProcessors() {
-		return secondaryProcessor;
+	public Set<Processor> getSecondaryProcessors() {
+		return secondaryProcessors;
 	}
-	public void setSecondaryProcessor(Set<String> secondaryProcessor) {
-		this.secondaryProcessor = secondaryProcessor;
+	public void setSecondaryProcessors(Set<Processor> secondaryProcessors) {
+		this.secondaryProcessors = secondaryProcessors;
 	}
 	public Map<String, Boolean> getInputFields() {
 		return inputFields;

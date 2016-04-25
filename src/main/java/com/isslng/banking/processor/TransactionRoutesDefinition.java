@@ -19,11 +19,18 @@ public class TransactionRoutesDefinition extends RouteBuilder{
         .to("bean:transactionValidator")
         .to("bean:transactionInputManager?method=save")
         .setProperty("transactionInput").spel("#{body}")
-        .recipientList(spel("jms:#{@transactionTypeManager.getPrimaryProcessor"
-        		+ "(request.body.code)}?jmsMessageType=Object"))
+        .recipientList(spel("#{@transactionTypeManager.getPrimaryProcessor"
+        		+ "(request.body.code).getUrl()}?jmsMessageType=Object"))
 		.to("bean:transactionOutputProcessor")
+		.wireTap("jms:secondaryOuptutProcessing")
 		.to("bean:transactionOutputProcessor") //format
 		.marshal().json(JsonLibrary.Jackson);
+        
+        from("jms:secondaryOuptutProcessing")
+        .log("Secondary processing")
+        .recipientList(spel("#{@processorManager.toProcessorUrl(@transactionTypeManager.getSecondaryProcessors(request.body.transactionInput.code))}"))
+        .ignoreInvalidEndpoints();
+        
 	}
 
 }

@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
+import com.isslng.banking.processor.persistence.Processor;
 import com.isslng.banking.processor.persistence.TransactionType;
 import com.isslng.banking.processor.persistence.TransactionTypeRepository;
 
@@ -17,12 +18,12 @@ public class TransactionTypeManager extends BasicRepositoryManager
 			return null;
 		}
 	}
-	public String getPrimaryProcessor(String code){
+	public Processor getPrimaryProcessor(String code){
 		TransactionType tt = getByCode(code);
 		return tt.getPrimaryProcessor();
 	}
 	
-	public Set<String> getSecondaryProcessors(String code){
+	public Set<Processor> getSecondaryProcessors(String code){
 		TransactionType tt = getByCode(code);
 		return tt.getSecondaryProcessors();
 	}
