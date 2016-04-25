@@ -31,7 +31,7 @@ public class TransactionOutputProcessor {
 		Map<String, Boolean> outputFields = tt.getOutputFields();
 		TransactionOutput to = new TransactionOutput();
 		to.setTransactionInput(ti);
-		to.setStatus(TransactionStatus.SUCCESS);
+	    to.setStatus(TransactionStatus.valueOf( (String)exchange.getIn().getHeader("status")));
 		Map<String, Object> outMap = new HashMap<>();
 		for(String key: outputFields.keySet()){
 			if(outputFields.get(key)) // autofill field
@@ -47,7 +47,7 @@ public class TransactionOutputProcessor {
 		Map<String, Boolean> outputFields = tt.getOutputFields();
 		TransactionOutput to = new TransactionOutput();
 		to.setTransactionInput(ti);
-		to.setStatus(TransactionStatus.SUCCESS);
+		to.setStatus(TransactionStatus.valueOf( (String)exchange.getIn().getHeader("status")));
 		
 		for(String key: outputFields.keySet()){
 			if(!output.containsKey(key)){

@@ -52,6 +52,12 @@ public class Receiver {
 			public Message createMessage(Session session) throws JMSException {
 				Message m = session.createTextMessage("Hello from " + destination);
 				m.setJMSCorrelationID(request.getJMSCorrelationID());
+				if( ((int) ti.getTransactionFields().get("amount")) < 500){
+					m.setStringProperty("status", "FAILURE");
+				}else{
+					m.setStringProperty("status", "SUCCESS");
+				}
+					
 				return m;
 			}
 		});
