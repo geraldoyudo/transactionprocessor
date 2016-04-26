@@ -23,14 +23,21 @@ public class TransactionRoutesDefinition extends RouteBuilder{
         .recipientList(spel("#{@transactionTypeManager.getPrimaryProcessor"
         		+ "(exchange.getProperty('transactionInput').code).getUrl()}?jmsMessageType=Object"))
 		.to("bean:transactionOutputProcessor")
-		.wireTap("jms:secondaryOuptutProcessing")
+		.wireTap("jms:topic:secondaryOuptutProcessing")
 		.to("bean:transactionOutputProcessor") //format
 		.marshal().json(JsonLibrary.Jackson);
         
-        from("jms:secondaryOuptutProcessing")
+        from("jms:topic:secondaryOuptutProcessing")
+        .multicast().to("direct")
         .log("Secondary processing")
         .recipientList(spel("#{@processorManager.toProcessorUrl(@transactionTypeManager.getSecondaryProcessors(request.body.transactionInput.code))}"))
         .ignoreInvalidEndpoints();
+        
+        from("jms:topic:secondaryOutputProcessing")
+        .log("Tertiary processing")
+        .marshal().json(JsonLibrary.Jackson)
+        .to("file:C:/output/");
+        
         
 	}
 
