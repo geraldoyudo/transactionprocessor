@@ -4,8 +4,8 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
-import com.isslng.banking.processor.persistence.Processor;
-import com.isslng.banking.processor.persistence.TransactionType;
+import com.isslng.banking.processor.entities.Processor;
+import com.isslng.banking.processor.entities.TransactionType;
 import com.isslng.banking.processor.persistence.TransactionTypeRepository;
 
 @Component

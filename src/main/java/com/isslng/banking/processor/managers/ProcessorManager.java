@@ -5,7 +5,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
-import com.isslng.banking.processor.persistence.Processor;
+import com.isslng.banking.processor.entities.Processor;
 import com.isslng.banking.processor.persistence.ProcessorRepository;
 
 @Component
@@ -22,6 +22,9 @@ public class ProcessorManager extends BasicRepositoryManager
 	
 	public Set<String> toProcessorUrl(Set<Processor> processors){
 		Set<String> processorStr = new HashSet<>();
+		if(processors == null){
+			return processorStr; 
+		}
 		for(Processor p: processors){
 			processorStr.add(p.getUrl());
 		}

@@ -1,9 +1,11 @@
 package com.isslng.banking.processor;
 
+import java.io.IOException;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.ObjectMessage;
 import javax.jms.Session;
+import javax.jms.TextMessage;
 
 import org.apache.activemq.command.ActiveMQTopic;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +19,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.isslng.banking.processor.persistence.TransactionInput;
-import com.isslng.banking.processor.persistence.TransactionOutput;
+import com.isslng.banking.processor.entities.TransactionInput;
 
 @Component
 public class Receiver {
@@ -37,49 +38,37 @@ public class Receiver {
     /**
      * When you receive a message, print it out, then shut down the application.
      * Finally, clean up any ActiveMQ server stuff.
-     * @throws JsonProcessingException 
+     * @throws IOException 
      */
     
     @JmsListener(destination = "cash-receipt")
-    public void reply2(Message request) throws  JMSException, JsonProcessingException{
+    public void reply2(byte[] message ,Message request) throws  JMSException, IOException{
     	
     	System.out.println("Received message");
-    	TransactionInput ti = (TransactionInput)((ObjectMessage) request).getObject();
+      	TransactionInput ti = objectMapper.readValue(new String(message), TransactionInput.class);
     	System.out.println(objectMapper.writeValueAsString(ti));
     	jmsOp.send(request.getJMSReplyTo(), new MessageCreator() {
 			
 			@Override
 			public Message createMessage(Session session) throws JMSException {
-				Message m = session.createTextMessage("Hello from " + destination);
+				Message m = session.createTextMessage(String.format("Transaction (%s, %s) ", ti.getCode(),
+						ti.getUser()));
 				m.setJMSCorrelationID(request.getJMSCorrelationID());
+				try{
 				if( ((int) ti.getTransactionFields().get("amount")) < 500){
 					m.setStringProperty("status", "FAILURE");
 				}else{
 					m.setStringProperty("status", "SUCCESS");
 				}
-					
+				}catch(Exception ex){
+					m.setStringProperty("status", "FAILURE");
+			
+				}
 				return m;
 			}
 		});
     }
     
-    @JmsListener(destination = "processor1")
-    public void reply1(Message request) throws  JMSException, JsonProcessingException{
-    	
-    	System.out.println("Received message from processor1");
-    	TransactionOutput ti = (TransactionOutput)((ObjectMessage) request).getObject();
-    	System.out.println(objectMapper.writeValueAsString(ti));
-    	
-    }
-    
-    @JmsListener(destination = "processor2")
-    public void reply(Message request) throws  JMSException, JsonProcessingException{
-    	
-    	System.out.println("Received message from processor2");
-    	TransactionOutput ti = (TransactionOutput)((ObjectMessage) request).getObject();
-    	System.out.println(objectMapper.writeValueAsString(ti));
-    	
-    }
     
     @Configuration
    public static class ReceiverConfig {

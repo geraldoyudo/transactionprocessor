@@ -2,7 +2,7 @@ package com.isslng.banking.processor.managers;
 
 import org.springframework.stereotype.Component;
 
-import com.isslng.banking.processor.persistence.TransactionInput;
+import com.isslng.banking.processor.entities.TransactionInput;
 import com.isslng.banking.processor.persistence.TransactionInputRepository;
 
 @Component

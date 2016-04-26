@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.DispatcherServlet;
 
 @Configuration
@@ -43,5 +44,10 @@ public class CamelConfig {
     @Bean
     public ProjectionFactory projectionFactory(){
         return new SpelAwareProxyProjectionFactory();
+    }
+    
+    @Bean
+    public LocalValidatorFactoryBean validator(){
+    	return new LocalValidatorFactoryBean();
     }
 }

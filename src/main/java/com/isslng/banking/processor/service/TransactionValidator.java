@@ -5,16 +5,17 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.isslng.banking.processor.entities.TransactionInput;
+import com.isslng.banking.processor.entities.TransactionType;
 import com.isslng.banking.processor.exception.TransactionValidatorException;
 import com.isslng.banking.processor.managers.TransactionTypeManager;
-import com.isslng.banking.processor.persistence.TransactionInput;
-import com.isslng.banking.processor.persistence.TransactionType;
 
 @Component
 public class TransactionValidator {
 	@Autowired
 	TransactionTypeManager ttManager;
 	public TransactionInput validate(TransactionInput ti){
+	
 		String code = ti.getCode();
 		if(code == null || code.isEmpty()) 
 			throw new TransactionValidatorException("No transaction code");

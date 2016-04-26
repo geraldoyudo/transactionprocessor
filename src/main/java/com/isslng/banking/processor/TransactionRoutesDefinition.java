@@ -6,7 +6,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.dataformat.JsonLibrary;
 import org.springframework.stereotype.Component;
 
-import com.isslng.banking.processor.persistence.TransactionInput;
+import com.isslng.banking.processor.entities.TransactionInput;
 
 @Component
 public class TransactionRoutesDefinition extends RouteBuilder{
@@ -19,8 +19,9 @@ public class TransactionRoutesDefinition extends RouteBuilder{
         .to("bean:transactionValidator")
         .to("bean:transactionInputManager?method=save")
         .setProperty("transactionInput").spel("#{body}")
+        .marshal().json(JsonLibrary.Jackson)
         .recipientList(spel("#{@transactionTypeManager.getPrimaryProcessor"
-        		+ "(request.body.code).getUrl()}?jmsMessageType=Object"))
+        		+ "(exchange.getProperty('transactionInput').code).getUrl()}?jmsMessageType=Object"))
 		.to("bean:transactionOutputProcessor")
 		.wireTap("jms:secondaryOuptutProcessing")
 		.to("bean:transactionOutputProcessor") //format
