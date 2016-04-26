@@ -1,25 +1,22 @@
 package com.isslng.banking.processor.entities;
 
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
-public class Processor {
-	@Id
-	private String id;
+public class Processor extends Resource{
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	@Indexed(unique = true)
 	private String name;
 	@Indexed(unique = true)
 	private String url;
 	private String description;
 	
-	public String getId() {
-		return id;
-	}
-	public void setId(String id) {
-		this.id = id;
-	}
+
 	public String getName() {
 		return name;
 	}

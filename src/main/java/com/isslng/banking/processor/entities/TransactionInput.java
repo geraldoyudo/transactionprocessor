@@ -1,6 +1,5 @@
 package com.isslng.banking.processor.entities;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
@@ -9,12 +8,12 @@ import javax.validation.constraints.NotNull;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
-public class TransactionInput implements Serializable{
+public class TransactionInput extends  Resource{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 3049199770677754810L;
-	private String id;
+	
 	@NotNull
 	private String code;
 	@NotNull
@@ -24,12 +23,7 @@ public class TransactionInput implements Serializable{
 	@NotNull
 	private Date date;
 	private Map<String,Object> transactionFields;
-	public String getId() {
-		return id;
-	}
-	public void setId(String id) {
-		this.id = id;
-	}
+	
 	public String getCode() {
 		return code;
 	}

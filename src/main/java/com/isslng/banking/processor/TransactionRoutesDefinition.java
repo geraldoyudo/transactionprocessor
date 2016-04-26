@@ -19,22 +19,25 @@ public class TransactionRoutesDefinition extends RouteBuilder{
         .to("bean:transactionValidator")
         .to("bean:transactionInputManager?method=save")
         .setProperty("transactionInput").spel("#{body}")
+        // to drools here
         .marshal().json(JsonLibrary.Jackson)
         .recipientList(spel("#{@transactionTypeManager.getPrimaryProcessor"
         		+ "(exchange.getProperty('transactionInput').code).getUrl()}?jmsMessageType=Object"))
 		.to("bean:transactionOutputProcessor")
-		.wireTap("jms:topic:secondaryOuptutProcessing")
+		.wireTap("jms:secondaryOuptutProcessing")
 		.to("bean:transactionOutputProcessor") //format
 		.marshal().json(JsonLibrary.Jackson);
         
-        from("jms:topic:secondaryOuptutProcessing")
-        .multicast().to("direct")
+        from("jms:secondaryOuptutProcessing")
+        .multicast().to("seda:secondaryProcessing", "seda:drools");
+        
+        from("seda:secondaryProcessing")
         .log("Secondary processing")
         .recipientList(spel("#{@processorManager.toProcessorUrl(@transactionTypeManager.getSecondaryProcessors(request.body.transactionInput.code))}"))
         .ignoreInvalidEndpoints();
         
-        from("jms:topic:secondaryOutputProcessing")
-        .log("Tertiary processing")
+        from("seda:drools")
+        .log("Drools processing")
         .marshal().json(JsonLibrary.Jackson)
         .to("file:C:/output/");
         
