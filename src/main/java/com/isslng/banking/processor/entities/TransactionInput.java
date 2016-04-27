@@ -24,6 +24,9 @@ public class TransactionInput extends  Resource{
 	private Date date;
 	private Map<String,Object> transactionFields;
 	
+	private boolean needsApproval = false;
+	private boolean approved = true;
+	
 	public String getCode() {
 		return code;
 	}
@@ -53,6 +56,18 @@ public class TransactionInput extends  Resource{
 	}
 	public void setTransactionFields(Map<String, Object> transactionFields) {
 		this.transactionFields = transactionFields;
+	}
+	public boolean getNeedsApproval() {
+		return needsApproval;
+	}
+	public void setNeedsApproval(boolean needsApproval) {
+		this.needsApproval = needsApproval;
+	}
+	public boolean isApproved() {
+		return approved;
+	}
+	public void setApproved(boolean approved) {
+		this.approved = approved;
 	}
 	
 	

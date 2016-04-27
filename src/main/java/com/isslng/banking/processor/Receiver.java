@@ -69,6 +69,16 @@ public class Receiver {
 		});
     }
     
+    @JmsListener(destination = "generalTransactionNotification")
+    public void generalNotificationListener(byte[] message){
+    	System.out.println("General Notification Listener");
+    	System.out.println(new String(message));
+    }
+    @JmsListener(destination = "approvedTransactionNotification")
+    public void approvedNotificationListener(byte[] message){
+    	System.out.println("Approved Notification Listener");
+    	System.out.println(new String(message));
+    }
     
     @Configuration
    public static class ReceiverConfig {

@@ -12,13 +12,13 @@ public abstract class Resource implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 	@Id
-	private String Id;
+	private String id;
 	private Map<String,Object> meta = new HashMap<>();
 	public String getId() {
-		return Id;
+		return id;
 	}
 	public void setId(String id) {
-		Id = id;
+		this.id = id;
 	}
 	public Map<String, Object> getMeta() {
 		return meta;

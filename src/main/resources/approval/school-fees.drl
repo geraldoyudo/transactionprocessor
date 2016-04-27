@@ -1,0 +1,40 @@
+package com.isslng.banking.processor.drools;
+
+import com.isslng.banking.processor.entities.TransactionInput;
+import java.util.Map;
+
+global String topicLevel
+
+rule "Require approval for transactions greater than 500000"
+	when
+		$ti : TransactionInput(fieldGreaterThan(transactionFields, "amount", 500000))
+	then
+		$ti.setNeedsApproval(true);
+	end
+
+rule "Require approval for customer accounts starting with 50"
+	when
+		$ti : TransactionInput(fieldStartsWith(transactionFields, "contraAccount", "50"))
+	then
+		$ti.setNeedsApproval(true);
+	end
+
+function boolean isPupilIdValid(String pupilId){
+	if(pupilId.startsWith("PUP") && pupilId.length() == 12)
+		return true;
+	else
+		return false;
+}
+
+function boolean isSchoolTransaction(String code){
+	return code.startsWith("SCH");
+}
+
+function boolean fieldGreaterThan(Map fields, String field, int value){
+	int val = (int) fields.get(field);
+	return (val > value);
+}
+function boolean fieldStartsWith(Map fields, String field, String value){
+	String val = (String) fields.get(field);
+	return (val.startsWith(value));
+}

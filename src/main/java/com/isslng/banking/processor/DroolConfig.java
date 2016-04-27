@@ -18,7 +18,7 @@ public class DroolConfig {
 	}
 	
 	@Bean 
-	KieSession transactionValidatorSession(KieContainer kieContainer){
-		return kieContainer.newKieSession("transaction-validation");
+	KieSession approvalEvaluatorSession(KieContainer kieContainer){
+		return kieContainer.newKieSession("approval-evaluation");
 	}
 }
