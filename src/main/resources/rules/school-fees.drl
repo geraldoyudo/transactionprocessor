@@ -1,0 +1,24 @@
+package com.isslng.banking.processor.drools;
+
+import com.isslng.banking.processor.entities.TransactionInput;
+
+global String topicLevel
+
+rule "Drools Introduction"
+	when
+		$ti : TransactionInput( isSchoolTransaction(code) )
+	then
+		$ti.getMeta().put("isInvalid",true);
+		$ti.getMeta().put("invalidMessage","Invalid pupil ID");
+	end
+
+function boolean isPupilIdValid(String pupilId){
+	if(pupilId.startsWith("PUP") && pupilId.length() == 12)
+		return true;
+	else
+		return false;
+}
+
+function boolean isSchoolTransaction(String code){
+	return code.startsWith("SCH");
+}

@@ -17,6 +17,7 @@ public class TransactionRoutesDefinition extends RouteBuilder{
         from("servlet:///process?httpMethodRestrict=POST")
         .unmarshal().json(JsonLibrary.Jackson, TransactionInput.class)
         .to("bean:transactionValidator")
+        .to("bean:dynamicValidator")
         .to("bean:transactionInputManager?method=save")
         .setProperty("transactionInput").spel("#{body}")
         // to drools here
@@ -29,17 +30,11 @@ public class TransactionRoutesDefinition extends RouteBuilder{
 		.marshal().json(JsonLibrary.Jackson);
         
         from("jms:secondaryOuptutProcessing")
-        .multicast().to("seda:secondaryProcessing", "seda:drools");
-        
-        from("seda:secondaryProcessing")
         .log("Secondary processing")
         .recipientList(spel("#{@processorManager.toProcessorUrl(@transactionTypeManager.getSecondaryProcessors(request.body.transactionInput.code))}"))
         .ignoreInvalidEndpoints();
         
-        from("seda:drools")
-        .log("Drools processing")
-        .marshal().json(JsonLibrary.Jackson)
-        .to("file:C:/output/");
+       
         
         
 	}
