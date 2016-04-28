@@ -16,4 +16,5 @@ public abstract class BasicRepositoryManager <T extends MongoRepository<V,W>, V,
 	public V save(V managedObject){
 		return managedRepository.save(managedObject);
 	}
+	
 }

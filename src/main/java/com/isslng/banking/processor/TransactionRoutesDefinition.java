@@ -2,6 +2,7 @@ package com.isslng.banking.processor;
 
 import static org.apache.camel.language.spel.SpelExpression.spel;
 
+import org.apache.camel.ExchangePattern;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.dataformat.JsonLibrary;
 import org.springframework.stereotype.Component;
@@ -32,10 +33,16 @@ public class TransactionRoutesDefinition extends RouteBuilder{
         	.choice()
 	        	.when(spel("#{body.approvalRejected}"))
 					.to("direct:processRejectedTransaction")
+				.when(spel("#{body.needsApproval && body.approved}"))
+					.to("direct:processApprovedTransactionInBackground")	
         		.when(spel("#{body.approved}"))
         			.to("direct:processApprovedTransaction")
         		.otherwise()
         			.to("direct:sendForApproval");
+        
+        from("direct:processApprovedTransactionInBackground")
+	        .wireTap("direct:processApprovedTransaction")
+			.to("direct:approvedTransactionProcessing");
         
         from("direct:sendForApproval")
         	.log("Transaction to be approved = ${body.id}")
@@ -44,38 +51,30 @@ public class TransactionRoutesDefinition extends RouteBuilder{
         from("direct:processApprovedTransaction")
         	.setProperty("transactionInput").spel("#{body}")
 	        .marshal().json(JsonLibrary.Jackson)
+	        .setExchangePattern(ExchangePattern.InOut)
 	        .recipientList(spel("#{@transactionTypeManager.getPrimaryProcessor"
 	        		+ "(exchange.getProperty('transactionInput').code).getUrl()}?jmsMessageType=Object"))
 			.to("bean:transactionOutputProcessor")
 			.wireTap("direct:secondaryOuptutProcessing")
-			.to("bean:transactionOutputProcessor") //format
-			.marshal().json(JsonLibrary.Jackson)
 			.choice()
-				.when(spel("#{exchange.getProperty('transactionInput').needsApproval}"))
-					.to("direct:approvedTransactionProcessing");
+				.when(spel("#{!exchange.getProperty('transactionInput').needsApproval}"))
+					.to("direct:format") //format
+				.end();
+        		
+		from("direct:format")
+			.to("bean:transactionOutputProcessor") //format
+			.marshal().json(JsonLibrary.Jackson);
         		
             
         from("direct:secondaryOuptutProcessing")
-        	.marshal().json(JsonLibrary.Jackson)
-	        .multicast()
-	        .to("direct:generalOutputProcessing", "direct:specificOutputProcessing");
-	        
-	    from("direct:specificOutputProcessing")
-	        .log("Secondary processing")
-	        .recipientList(spel("#{@processorManager.toProcessorUrl(@transactionTypeManager.getSecondaryProcessors(exchange.getProperty('transactionInput').code))}"))
-	        .ignoreInvalidEndpoints();
-	    
-	    from("direct:generalOutputProcessing")
-	    	.to("jms:generalTransactionNotification");
-	    
-	    from ("direct:approvedTransactionProcessing")
-	    	.wireTap("jms:approvedTransactionNotification")
+	       	.to("jms:topic:generalTransactionNotification");  
+	    from ("direct:approvedTransactionProcessing")    	
+	    	.wireTap("jms:topic:approvedTransactionNotification")
 	    	.transform().constant("Transaction successful. User notified");
-	    from ("direct:processRejectedTransaction")
-	    	.marshal().json(JsonLibrary.Jackson)
-		    .wireTap("jms:rejectedTransactionNotification")
-	    	.transform().constant("Transaction rejected by issuer.");
 	    
+	    from ("direct:processRejectedTransaction")
+		    .wireTap("jms:topic:rejectedTransactionNotification")
+	    	.transform().constant("Transaction rejected by issuer.");
 	
 	   
 	}

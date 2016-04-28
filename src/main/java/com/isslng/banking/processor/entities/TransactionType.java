@@ -12,25 +12,19 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
-public class TransactionType {
-	@Id
-	private String id;
+public class TransactionType extends NotifyableResource {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	@Indexed(unique = true)
 	private String code;
 	@NotNull
 	@DBRef
 	private Processor primaryProcessor;
-	@DBRef
-	private Set<Processor> secondaryProcessors;
 	private Map<String,Boolean> inputFields = new HashMap<>();
 	private Map<String, Boolean> outputFields = new HashMap<>();
-	
-	public String getId() {
-		return id;
-	}
-	public void setId(String id) {
-		this.id = id;
-	}
+
 	public String getCode() {
 		return code;
 	}
@@ -43,12 +37,7 @@ public class TransactionType {
 	public void setPrimaryProcessor(Processor primaryProcessor) {
 		this.primaryProcessor = primaryProcessor;
 	}
-	public Set<Processor> getSecondaryProcessors() {
-		return secondaryProcessors;
-	}
-	public void setSecondaryProcessors(Set<Processor> secondaryProcessors) {
-		this.secondaryProcessors = secondaryProcessors;
-	}
+	
 	public Map<String, Boolean> getInputFields() {
 		return inputFields;
 	}

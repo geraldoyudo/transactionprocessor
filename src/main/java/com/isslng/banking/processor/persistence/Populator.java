@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
+import com.isslng.banking.processor.entities.Organization;
 import com.isslng.banking.processor.entities.Processor;
+import com.isslng.banking.processor.entities.TransactionNotification;
 import com.isslng.banking.processor.entities.TransactionType;
 
 @Component
@@ -18,9 +20,18 @@ public class Populator {
 	TransactionTypeRepository ttRepository;
 	@Autowired
 	ProcessorRepository pRepository;
+	@Autowired
+	OrganizationRepository orgRepository;
+	
 	@PostConstruct
 	public void initRepo(){
 		if(ttRepository.findAll().isEmpty()){
+			Organization org = new Organization();
+			org.setCode("ISSL");
+			org.setName("ISSLNG");
+			org.setDescription("Test organization");
+			org = orgRepository.save(org);
+			
 			Processor pCash;
 			pCash = new Processor();
 			pCash.setName("general-processor");
@@ -29,18 +40,27 @@ public class Populator {
 			pRepository.save(pCash);
 			
 			Processor p1 = new Processor();
-			p1.setName("sample-processor-1");
-			p1.setUrl("jms:topic:processor1");
+			p1.setName("completion-processor");
+			p1.setUrl("jms:topic:processor-COMPLETED");
 			p1.setDescription("This tests secondary processing");
             p1 = pRepository.save(p1);
             
             Processor p2 = new Processor();
-			p2.setName("sample-processor-2");
-			p2.setUrl("jms:topic:processor2");
+			p2.setName("approval-processor");
+			p2.setUrl("jms:topic:processor-APPROVED");
 			p2.setDescription("This tests secondary processing");
 		    p2 = pRepository.save(p2);
+		    
+		    Processor p3 = new Processor();
+			p3.setName("rejection-processor");
+			p3.setUrl("jms:topic:processor-REJECTED");
+			p3.setDescription("This tests secondary processing");
+		    p3 = pRepository.save(p3);
 			
-			
+		    org.setCompletionNotificationProcessors(Sets.newHashSet(p1));
+		    org.setApprovalNotificationProcessors(Sets.newHashSet(p2));
+		    org.setRejectionNotificationProcessors(Sets.newHashSet(p3));
+			org = orgRepository.save(org);
 		   
 			TransactionType t = new TransactionType();
 			t.setCode("TR-CASH-RECEIPT");

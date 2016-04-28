@@ -21,16 +21,31 @@ public class ApprovalManager {
 		if(ti.isApprovalRejected() || ti.isApproved()){
 			throw new NullPointerException("Transaction to approve not found");
 		}
-		Object approvalManagers = ti.meta("approvalManagers");
+		int numberOfApprovers = updateApprovalList(approval, ti);
+		if(approval.isRejected()){
+			ti.setApprovalRejected(true);
+			return tiManager.save(ti);
+		}
+		Object approvalSizeVal = ti.meta("approvalSize");
+		if(approvalSizeVal == null){
+			ti.setApproved(true);
+		}else{
+			int approvalSize = (int) approvalSizeVal;
+			ti.setApproved(numberOfApprovers >= approvalSize);
+		}
+		
+		return tiManager.save(ti);
+	}
+
+	private int updateApprovalList(ApprovalInput approval, TransactionInput ti) {
+		Object approvalManagers = ti.meta("approvalList");
 		Set<String> approvalList = new HashSet<String>();
 		if(approvalManagers != null){
 			approvalList.addAll((Collection<String>) approvalManagers);		
 		}
 		approvalList.add(approval.getUser());
-		if(approval.isRejected())
-			ti.setApprovalRejected(true);
-		else
-			ti.setApproved(true);
-		return tiManager.save(ti);
+		ti.meta("approvalList", approvalList);
+		return approvalList.size();
 	}
+	
 }

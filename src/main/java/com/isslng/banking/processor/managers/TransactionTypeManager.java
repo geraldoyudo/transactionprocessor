@@ -1,10 +1,12 @@
 package com.isslng.banking.processor.managers;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
 import com.isslng.banking.processor.entities.Processor;
+import com.isslng.banking.processor.entities.TransactionNotification;
 import com.isslng.banking.processor.entities.TransactionType;
 import com.isslng.banking.processor.persistence.TransactionTypeRepository;
 
@@ -23,8 +25,21 @@ public class TransactionTypeManager extends BasicRepositoryManager
 		return tt.getPrimaryProcessor();
 	}
 	
-	public Set<Processor> getSecondaryProcessors(String code){
+	public Set<Processor> getNotificationProcessors(String code, String notifyTypeStr){
+		TransactionNotification notifyType = TransactionNotification.valueOf(notifyTypeStr);
 		TransactionType tt = getByCode(code);
-		return tt.getSecondaryProcessors();
+		switch(notifyType){
+			case APPROVED:{
+				return tt.getApprovalNotificationProcessors();
+			}
+			case COMPLETED:{
+				return tt.getCompletionNotificationProcessors();
+			}
+			case REJECTED:{
+				return tt.getRejectionNotificationProcessors();
+			}
+			default:return new HashSet<>();
+		}
+		
 	}
 }

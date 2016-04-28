@@ -22,6 +22,9 @@ public class TransactionInput extends  Resource{
 	private String user;
 	@NotNull
 	private Date date;
+	@NotNull
+	private String orgCode;
+	
 	private Map<String,Object> transactionFields;
 	
 	private boolean needsApproval = false;
@@ -78,6 +81,12 @@ public class TransactionInput extends  Resource{
 	}
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+	public String getOrgCode() {
+		return orgCode;
+	}
+	public void setOrgCode(String orgCode) {
+		this.orgCode = orgCode;
 	}
 	
 	
