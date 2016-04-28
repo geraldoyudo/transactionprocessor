@@ -26,6 +26,7 @@ public class TransactionInput extends  Resource{
 	
 	private boolean needsApproval = false;
 	private boolean approved = true;
+	public boolean approvalRejected = false;
 	
 	public String getCode() {
 		return code;
@@ -69,6 +70,17 @@ public class TransactionInput extends  Resource{
 	public void setApproved(boolean approved) {
 		this.approved = approved;
 	}
+	public boolean isApprovalRejected() {
+		return approvalRejected;
+	}
+	public void setApprovalRejected(boolean approvalRejected) {
+		this.approvalRejected = approvalRejected;
+	}
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+	
+	
 	
 	
 }

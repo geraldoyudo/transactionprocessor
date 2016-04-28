@@ -79,6 +79,11 @@ public class Receiver {
     	System.out.println("Approved Notification Listener");
     	System.out.println(new String(message));
     }
+    @JmsListener(destination = "rejectedTransactionNotification")
+    public void rejectedNotificationListener(byte[] message){
+    	System.out.println("Rejected Notification Listener");
+    	System.out.println(new String(message));
+    }
     
     @Configuration
    public static class ReceiverConfig {

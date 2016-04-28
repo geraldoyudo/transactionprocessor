@@ -16,9 +16,10 @@ public class ApprovalEvaluator {
 	public TransactionInput evaluate(TransactionInput ti){
 		approvalEvaluatorSession.insert(ti);
 		approvalEvaluatorSession.fireAllRules();
-		if(ti.getNeedsApproval()){
+		if(ti.getNeedsApproval()||ti.isApprovalRejected()){
 			ti.setApproved(false);
-		}else{
+		}
+		else{
 			ti.setApproved(true);
 		}
 		return ti;

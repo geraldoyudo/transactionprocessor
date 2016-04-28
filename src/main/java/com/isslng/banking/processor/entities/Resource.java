@@ -27,5 +27,11 @@ public abstract class Resource implements Serializable{
 		this.meta = meta;
 	}
 	
+	public Object meta(String key){
+		return meta.get(key);
+	}
+	public Object meta (String key, Object value){
+		return meta.put(key, value);
+	}
 	
 }

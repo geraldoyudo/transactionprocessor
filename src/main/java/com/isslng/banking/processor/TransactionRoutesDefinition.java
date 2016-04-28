@@ -8,13 +8,14 @@ import org.springframework.stereotype.Component;
 
 import com.isslng.banking.processor.entities.ApprovalInput;
 import com.isslng.banking.processor.entities.TransactionInput;
+import com.isslng.banking.processor.exception.TransactionValidatorException;
 
 @Component
 public class TransactionRoutesDefinition extends RouteBuilder{
 
 	@Override
 	public void configure() throws Exception {
-		// Access us using http://localhost:8080/camel/hello
+	    
         from("servlet:///process?httpMethodRestrict=POST")
 	        .unmarshal().json(JsonLibrary.Jackson, TransactionInput.class)
 	        .to("bean:transactionValidator")
@@ -24,12 +25,13 @@ public class TransactionRoutesDefinition extends RouteBuilder{
         
         from("servlet:///approve?httpMethodRestrict=POST")
         	.unmarshal().json(JsonLibrary.Jackson, ApprovalInput.class)
-        	.setHeader("transactionId").spel("#{body.id}")
 	        .to("bean:approvalManager")
 	        .to("direct:processTransaction");
         
         from("direct:processTransaction")
         	.choice()
+	        	.when(spel("#{body.approvalRejected}"))
+					.to("direct:processRejectedTransaction")
         		.when(spel("#{body.approved}"))
         			.to("direct:processApprovedTransaction")
         		.otherwise()
@@ -69,6 +71,13 @@ public class TransactionRoutesDefinition extends RouteBuilder{
 	    from ("direct:approvedTransactionProcessing")
 	    	.wireTap("jms:approvedTransactionNotification")
 	    	.transform().constant("Transaction successful. User notified");
+	    from ("direct:processRejectedTransaction")
+	    	.marshal().json(JsonLibrary.Jackson)
+		    .wireTap("jms:rejectedTransactionNotification")
+	    	.transform().constant("Transaction rejected by issuer.");
+	    
+	
+	   
 	}
 
 }
