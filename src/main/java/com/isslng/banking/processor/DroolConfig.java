@@ -4,6 +4,7 @@ import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -23,7 +24,8 @@ public class DroolConfig {
 	}
 	
 	@Bean 
-	KieSession approvalEvaluatorSession(KieContainer kieContainer){
-		return kieContainer.newKieSession("approval-evaluation");
+	@Qualifier("input")
+	KieSession droolInputEvaluatpr(KieContainer kieContainer){
+		return kieContainer.newKieSession("general-rules");
 	}
 }

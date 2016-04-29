@@ -56,6 +56,12 @@ public class Populator {
 			p3.setUrl("jms:topic:processor-REJECTED");
 			p3.setDescription("This tests secondary processing");
 		    p3 = pRepository.save(p3);
+		    
+		    Processor p4 = new Processor();
+			p4.setName("issl-mail");
+			p4.setUrl("smtp://terra@mail.isslng.com:25?password=issl");
+			p4.setDescription("This tests secondary processing");
+		    p4 = pRepository.save(p4);
 			
 		    org.setCompletionNotificationProcessors(Sets.newHashSet(p1));
 		    org.setApprovalNotificationProcessors(Sets.newHashSet(p2));

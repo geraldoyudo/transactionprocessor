@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.isslng.banking.processor.entities.ApprovalInput;
 import com.isslng.banking.processor.entities.TransactionInput;
+import com.isslng.banking.processor.entities.TransactionNotification;
 import com.isslng.banking.processor.exception.TransactionValidatorException;
 
 @Component
@@ -20,7 +21,9 @@ public class TransactionRoutesDefinition extends RouteBuilder{
         from("servlet:///process?httpMethodRestrict=POST")
 	        .unmarshal().json(JsonLibrary.Jackson, TransactionInput.class)
 	        .to("bean:transactionValidator")
+	        .to("bean:droolEvaluator")
 	        .to("bean:approvalEvaluator")// drool sets the needsApproval method, if needsApproval, set approved to false
+	        //.to("bean:notificationEvaluator") //not implemented
 	        .to("bean:transactionInputManager?method=save")
 	    .to("direct:processTransaction");
         
@@ -67,13 +70,17 @@ public class TransactionRoutesDefinition extends RouteBuilder{
         		
             
         from("direct:secondaryOuptutProcessing")
-	       	.to("jms:topic:generalTransactionNotification");  
-	    from ("direct:approvedTransactionProcessing")    	
-	    	.wireTap("jms:topic:approvedTransactionNotification")
+        	.setHeader("notifyType").constant(TransactionNotification.COMPLETED.toString())
+	       	.to("jms:notifications");  
+        
+	    from ("direct:approvedTransactionProcessing")  
+	    	.setHeader("notifyType").constant(TransactionNotification.APPROVED.toString())
+	    	.wireTap("jms:notifications")
 	    	.transform().constant("Transaction successful. User notified");
 	    
 	    from ("direct:processRejectedTransaction")
-		    .wireTap("jms:topic:rejectedTransactionNotification")
+	    	.setProperty("notifyType").constant(TransactionNotification.REJECTED.toString())
+		    .wireTap("jms:notifications")
 	    	.transform().constant("Transaction rejected by issuer.");
 	
 	   

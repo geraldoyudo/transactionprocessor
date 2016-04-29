@@ -1,21 +1,13 @@
 package com.isslng.banking.processor.service;
 
-import org.kie.api.runtime.KieSession;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.isslng.banking.processor.entities.TransactionInput;
 
 @Component
-public class ApprovalEvaluator {
-	@Autowired
-	@Qualifier("approvalEvaluatorSession")
-	KieSession approvalEvaluatorSession;
+public class ApprovalEvaluator implements TransactionInputEvaluator{
 	
 	public TransactionInput evaluate(TransactionInput ti){
-		approvalEvaluatorSession.insert(ti);
-		approvalEvaluatorSession.fireAllRules();
 		if(ti.getNeedsApproval()||ti.isApprovalRejected()){
 			ti.setApproved(false);
 		}

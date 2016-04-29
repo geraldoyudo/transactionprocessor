@@ -2,6 +2,7 @@ package com.isslng.banking.processor.drools;
 
 import com.isslng.banking.processor.entities.TransactionInput;
 import java.util.Map;
+import java.util.ArrayList;
 
 global String topicLevel
 
@@ -9,7 +10,9 @@ rule "Reject transactions for customer accounts starting with 70"
 	when
 		$ti : TransactionInput(fieldStartsWith(transactionFields, "contraAccount", "70"))
 	then
-		$ti.setApprovalRejected(true);
+		ArrayList $levels = new ArrayList();
+		$levels.add("USER");
+		$ti.meta("COMPLETED",$levels);
 	end
 
 rule "Require approval for transactions greater than 500000"

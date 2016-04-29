@@ -13,24 +13,27 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DroolsImporter {
-	@Value("${app.drools.folder.approval}")
-	private String droolsApprovalFolder;
+	@Value("${app.drools.rules}")
+	private String rulesFolder;
 	
 	@PostConstruct
 	public void moveFiles() throws URISyntaxException{
-		if(droolsApprovalFolder != null){
-			File source = new File(droolsApprovalFolder);
-			URL url = this.getClass().getResource("/approval");
+		
+		if(rulesFolder != null){
+			File source = new File(rulesFolder);
+			URL url = this.getClass().getResource("/rules");
 			
 			File dest = new File(url.toURI());
 			try {
 			    FileUtils.copyDirectory(source, dest);
-			    System.out.println("Files successfully copied");
+			    System.out.println( String.format("Files for %s successfully loaded",rulesFolder));
 			} catch (IOException e) {
 			    e.printStackTrace();
 			}
 		}else{
-			System.out.println("No drools folder specified");
+			System.out.println(String.format("Files at %s not loaded",rulesFolder));
 		}
+		
+		
 	}
 }
