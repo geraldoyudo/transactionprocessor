@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 global String topicLevel
 
-rule "Reject transactions for customer accounts starting with 70"
+rule "Notify user for customer accounts starting with 70"
 	when
 		$ti : TransactionInput(fieldStartsWith(transactionFields, "contraAccount", "70"))
 	then
@@ -27,6 +27,16 @@ rule "Require approval for customer accounts starting with 50"
 		$ti : TransactionInput(fieldStartsWith(transactionFields, "contraAccount", "50"))
 	then
 		$ti.setNeedsApproval(true);
+	end
+
+rule "Notify user and tenant for customer accounts starting with 80"
+	when
+		$ti : TransactionInput(fieldStartsWith(transactionFields, "contraAccount", "80"))
+	then
+		ArrayList $levels = new ArrayList();
+		$levels.add("USER");
+		$levels.add("TENANT");
+		$ti.meta("COMPLETED",$levels);
 	end
 
 
