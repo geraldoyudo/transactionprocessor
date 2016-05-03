@@ -1,6 +1,8 @@
 package com.isslng.banking.processor;
 
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.model.dataformat.JsonLibrary;
+import org.apache.velocity.Template;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -13,12 +15,33 @@ public class TransactionNotificationRoutes extends RouteBuilder{
 			.recipientList().spel("#{@notificationSlipManager.getNotificationSlips"
 					+ "(body,request.headers['notifyType'])}").ignoreInvalidEndpoints();
 		from("jms:user-notification")
-		.log("USER ${headers.notifyType} ${body}");
+			.setProperty("transaction").spel("#{body}")
+			.marshal().json(JsonLibrary.Jackson)
+			.log("USER ${headers.notifyType} ${body}")
+			.recipientList().spel("#{@userChannelResolver.resolve(exchange.getProperty('transaction'),"
+					+ "@organizationManager.getUserChannels(exchange.getProperty('transaction')),"
+					+ "exchange)}");
+	
 		from("jms:type-notification")
-		.log("TYPE ${headers.notifyType} ${body}");
-		from("jms:tenant-notification")
-		.log("TENANT ${headers.notifyType} ${body}");
+			.setProperty("transaction").spel("#{body}")
+		  	.marshal().json(JsonLibrary.Jackson)
+	        .recipientList().spel("#{@processorManager.toProcessorUrl"
+	        		+ "(@transactionTypeManager.getNotificationProcessors"
+	        		+ "(T(com.isslng.banking.processor.managers.TransactionTypeManager).getTransactionCode"
+	        		+ "(exchange.getProperty('transaction')), "
+	        		+ "request.headers['notifyType']))}")
+	       .ignoreInvalidEndpoints();
 		
+		from("jms:tenant-notification")
+			.log("TENANT ${headers.notifyType} ${body}")
+			.setProperty("transaction").spel("#{body}")
+		  	.marshal().json(JsonLibrary.Jackson)
+	        .recipientList().spel("#{@processorManager.toProcessorUrl"
+	        		+ "(@organizationManager.getNotificationProcessors"
+	        		+ "(T(com.isslng.banking.processor.managers.TransactionTypeManager).getTenantCode"
+	        		+ "(exchange.getProperty('transaction')), "
+	        		+ "request.headers['notifyType']))}")
+	       .ignoreInvalidEndpoints();
 	}
 
 }

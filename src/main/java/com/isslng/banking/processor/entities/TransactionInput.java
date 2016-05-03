@@ -1,6 +1,7 @@
 package com.isslng.banking.processor.entities;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.validation.constraints.NotNull;
@@ -24,8 +25,8 @@ public class TransactionInput extends  Resource{
 	private Date date;
 	@NotNull
 	private String orgCode;
-	
-	private Map<String,Object> transactionFields;
+	private Map<String,Object> transactionFields = new HashMap<>();
+	private Map<String,Object> userDetails = new HashMap<>();
 	
 	private boolean needsApproval = false;
 	private boolean approved = true;
@@ -87,6 +88,12 @@ public class TransactionInput extends  Resource{
 	}
 	public void setOrgCode(String orgCode) {
 		this.orgCode = orgCode;
+	}
+	public Map<String, Object> getUserDetails() {
+		return userDetails;
+	}
+	public void setUserDetails(Map<String, Object> userDetails) {
+		this.userDetails = userDetails;
 	}
 	
 	

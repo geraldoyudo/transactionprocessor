@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Sets;
 import com.isslng.banking.processor.entities.Organization;
 import com.isslng.banking.processor.entities.Processor;
-import com.isslng.banking.processor.entities.TransactionNotification;
 import com.isslng.banking.processor.entities.TransactionType;
+import com.isslng.banking.processor.entities.UserChannel;
 
 @Component
 public class Populator {
@@ -30,6 +30,18 @@ public class Populator {
 			org.setCode("ISSL");
 			org.setName("ISSLNG");
 			org.setDescription("Test organization");
+			
+			
+			UserChannel userChannel = new UserChannel();
+			userChannel.setName("simple-email");
+			userChannel.setNotificationService("email");
+			userChannel.setProperty("from", "terra@isslng.com");
+			userChannel.setProperty("username", "terra");
+			userChannel.setProperty("password", "Isslng1");
+			userChannel.setProperty("host", "mail.isslng.com");
+			userChannel.setProperty("port", "25");
+			userChannel.setProperty("Subject", "test");
+			org.setUserChannels(Sets.newHashSet(userChannel));
 			org = orgRepository.save(org);
 			
 			Processor pCash;

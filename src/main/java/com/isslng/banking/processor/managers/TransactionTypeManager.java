@@ -6,7 +6,9 @@ import java.util.Set;
 import org.springframework.stereotype.Component;
 
 import com.isslng.banking.processor.entities.Processor;
+import com.isslng.banking.processor.entities.TransactionInput;
 import com.isslng.banking.processor.entities.TransactionNotification;
+import com.isslng.banking.processor.entities.TransactionOutput;
 import com.isslng.banking.processor.entities.TransactionType;
 import com.isslng.banking.processor.persistence.TransactionTypeRepository;
 
@@ -41,5 +43,18 @@ public class TransactionTypeManager extends BasicRepositoryManager
 			default:return new HashSet<>();
 		}
 		
+	}
+	
+	public static String getTransactionCode(TransactionInput ti){
+		return ti.getCode();
+	}
+	public static String getTransactionCode(TransactionOutput to){
+		return to.getTransactionInput().getCode();
+	}
+	public static String getTenantCode(TransactionInput ti){
+		return ti.getOrgCode();
+	}
+	public static String getTenantCode(TransactionOutput to){
+		return to.getTransactionInput().getOrgCode();
 	}
 }

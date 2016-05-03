@@ -1,5 +1,8 @@
 package com.isslng.banking.processor.entities;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -15,6 +18,7 @@ public class Organization extends NotifyableResource{
 	@Indexed(unique = true)
 	private String name;
 	private String description;
+	private Set<UserChannel> userChannels = new HashSet<>();
 	
 	public String getCode() {
 		return code;
@@ -34,6 +38,27 @@ public class Organization extends NotifyableResource{
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	
+	public Set<UserChannel> getUserChannels() {
+		return userChannels;
+	}
+	public void setUserChannels(Set<UserChannel> userChannels) {
+		this.userChannels = userChannels;
+	}
+	public UserChannel getChannelByName(String name){
+		for(UserChannel uc: userChannels){
+			if(uc.getName().equals("name"))
+				return uc;
+		}
+		return null;
+	}
+	public Set<UserChannel> getChannelsByService(String serviceName){
+		Set<UserChannel> channels = new HashSet<>();
+		for(UserChannel uc:userChannels){
+			if(uc.getNotificationService().equals(serviceName)){
+				channels.add(uc);
+			}
+		}
+		return channels;
+	}
 	
 }
