@@ -17,18 +17,21 @@ public class DroolsImporter {
 	private String rulesFolder;
 	
 	@PostConstruct
-	public void moveFiles() throws URISyntaxException{
+	public void moveFiles(){
 		
 		if(rulesFolder != null){
+			try {
 			File source = new File(rulesFolder);
 			URL url = this.getClass().getResource("/rules");
 			
 			File dest = new File(url.toURI());
-			try {
+			
 			    FileUtils.copyDirectory(source, dest);
 			    System.out.println( String.format("Files for %s successfully loaded",rulesFolder));
 			} catch (IOException e) {
 			    e.printStackTrace();
+			} catch (Exception e){
+				 e.printStackTrace();
 			}
 		}else{
 			System.out.println(String.format("Files at %s not loaded",rulesFolder));
