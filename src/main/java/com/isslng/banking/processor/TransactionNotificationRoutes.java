@@ -5,6 +5,8 @@ import org.apache.camel.model.dataformat.JsonLibrary;
 import org.apache.velocity.Template;
 import org.springframework.stereotype.Component;
 
+import com.isslng.banking.processor.service.UserChannelResolver;
+
 @Component
 public class TransactionNotificationRoutes extends RouteBuilder{
 
@@ -18,9 +20,7 @@ public class TransactionNotificationRoutes extends RouteBuilder{
 			.setProperty("transaction").spel("#{body}")
 			.marshal().json(JsonLibrary.Jackson)
 			.log("USER ${headers.notifyType} ${body}")
-			.recipientList().spel("#{@userChannelResolver.resolve(exchange.getProperty('transaction'),"
-					+ "@organizationManager.getUserChannels(exchange.getProperty('transaction')),"
-					+ "exchange)}");
+			.dynamicRouter(method(UserChannelResolver.class, "resolve"));
 	
 		from("jms:type-notification")
 			.setProperty("transaction").spel("#{body}")
