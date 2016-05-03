@@ -12,17 +12,17 @@ public class TransactionNotificationRoutes extends RouteBuilder{
 
 	@Override
 	public void configure() throws Exception {
-		from("jms:notifications")
+		from("direct:notifications")
 			.log("${headers.notifyType} ${body}")
 			.recipientList().spel("#{@notificationSlipManager.getNotificationSlips"
 					+ "(body,request.headers['notifyType'])}").ignoreInvalidEndpoints();
-		from("jms:user-notification")
+		from("seda:user-notification")
 			.setProperty("transaction").spel("#{body}")
 			.marshal().json(JsonLibrary.Jackson)
 			.log("USER ${headers.notifyType} ${body}")
 			.dynamicRouter(method(UserChannelResolver.class, "resolve"));
 	
-		from("jms:type-notification")
+		from("seda:type-notification")
 			.setProperty("transaction").spel("#{body}")
 		  	.marshal().json(JsonLibrary.Jackson)
 	        .recipientList().spel("#{@processorManager.toProcessorUrl"
@@ -32,7 +32,7 @@ public class TransactionNotificationRoutes extends RouteBuilder{
 	        		+ "request.headers['notifyType']))}")
 	       .ignoreInvalidEndpoints();
 		
-		from("jms:tenant-notification")
+		from("seda:tenant-notification")
 			.log("TENANT ${headers.notifyType} ${body}")
 			.setProperty("transaction").spel("#{body}")
 		  	.marshal().json(JsonLibrary.Jackson)

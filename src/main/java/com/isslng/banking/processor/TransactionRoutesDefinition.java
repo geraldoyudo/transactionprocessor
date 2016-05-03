@@ -70,18 +70,17 @@ public class TransactionRoutesDefinition extends RouteBuilder{
         		
             
         from("direct:secondaryOuptutProcessing")
-        	.log("Notifying general")
         	.setHeader("notifyType").constant(TransactionNotification.COMPLETED.toString())
-	       	.to("jms:notifications");  
+	       	.to("direct:notifications");  
         
 	    from ("direct:approvedTransactionProcessing")  
 	    	.setHeader("notifyType").constant(TransactionNotification.APPROVED.toString())
-	    	.wireTap("jms:notifications")
+	    	.wireTap("direct:notifications")
 	    	.transform().constant("Transaction successful. User notified");
 	    
 	    from ("direct:processRejectedTransaction")
 	    	.setProperty("notifyType").constant(TransactionNotification.REJECTED.toString())
-		    .wireTap("jms:notifications")
+		    .wireTap("direct:notifications")
 	    	.transform().constant("Transaction rejected by issuer.");
 	
 	   

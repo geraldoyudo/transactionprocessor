@@ -36,13 +36,13 @@ public class NotificationSlipManager {
 		Level tn = Level.valueOf(notifyLevel);
 		switch(tn){
 		case USER:{
-			return "jms:user-notification";
+			return "seda:user-notification";
 		}
 		case TYPE:{
-			return "jms:type-notification";
+			return "seda:type-notification";
 		}
 		case TENANT:{
-			return "jms:tenant-notification";
+			return "seda:tenant-notification";
 		}
 		default: return "";
 		}
