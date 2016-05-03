@@ -23,6 +23,7 @@ public class UserChannelResolver {
 	OrganizationManager organizationManager;
 	
 	public String resolve(@ExchangeProperty("transaction") Object transaction, Exchange exchange){
+		System.out.println("Resolve method called");
 		TransactionInput ti;
 		if(transaction instanceof TransactionInput){
 			ti = (TransactionInput) transaction;
@@ -31,21 +32,26 @@ public class UserChannelResolver {
 		}
 		Object iterValue = exchange.getProperty(USER_CHANNELS_ITERATOR);
 		Set<UserChannel> userChannels;
+		Iterator<UserChannel> iter;
 		if(iterValue == null){
 			userChannels = organizationManager.getByCode(ti.getOrgCode()).getUserChannels();
-			exchange.setProperty(USER_CHANNELS_ITERATOR, userChannels.iterator());
+			iter = userChannels.iterator();
+		}else{
+			iter =  (Iterator<UserChannel>)iterValue;
 		}
-		Iterator<UserChannel> iter = (Iterator<UserChannel>)exchange.getProperty(USER_CHANNELS_ITERATOR);
+		
 		if(iter.hasNext()){
 			UserChannel userChannel = iter.next();
 			for(UserChannelProcessor up: userChannelProcessors){
 				if(up.supports(userChannel.getNotificationService())){
+					System.out.println("Processing Endpoint");
 					exchange.setProperty(USER_CHANNELS_ITERATOR, iter);
 					return up.getEndpointUrl(ti,userChannel, exchange);
 				}
 			}
 			
 		}
+		System.out.println("No endpoints left");
 		exchange.setProperty(USER_CHANNELS_ITERATOR, null);
 		return "";
 	}

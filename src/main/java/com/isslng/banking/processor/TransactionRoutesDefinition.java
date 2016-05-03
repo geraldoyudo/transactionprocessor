@@ -70,6 +70,7 @@ public class TransactionRoutesDefinition extends RouteBuilder{
         		
             
         from("direct:secondaryOuptutProcessing")
+        	.log("Notifying general")
         	.setHeader("notifyType").constant(TransactionNotification.COMPLETED.toString())
 	       	.to("jms:notifications");  
         
