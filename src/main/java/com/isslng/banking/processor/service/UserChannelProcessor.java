@@ -7,6 +7,5 @@ import com.isslng.banking.processor.entities.UserChannel;
 
 public interface UserChannelProcessor {
 	public boolean supports(String serviceName);
-	public String getEndpointUrl(UserChannel userChannel);
-	public void setHeaders(TransactionInput ti,UserChannel userChannel, Exchange exchange);
+	public String getEndpointUrl(TransactionInput ti, UserChannel userChannel, Exchange exchange);
 }

@@ -40,9 +40,8 @@ public class UserChannelResolver {
 			UserChannel userChannel = iter.next();
 			for(UserChannelProcessor up: userChannelProcessors){
 				if(up.supports(userChannel.getNotificationService())){
-					up.setHeaders(ti, userChannel, exchange);
 					exchange.setProperty(USER_CHANNELS_ITERATOR, iter);
-					return up.getEndpointUrl(userChannel);
+					return up.getEndpointUrl(ti,userChannel, exchange);
 				}
 			}
 			

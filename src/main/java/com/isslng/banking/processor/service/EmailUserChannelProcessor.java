@@ -16,9 +16,10 @@ public class EmailUserChannelProcessor implements UserChannelProcessor{
 	}
 
 	@Override
-	public String getEndpointUrl(UserChannel userChannel) {
+	public String getEndpointUrl(TransactionInput ti, UserChannel userChannel, Exchange ex) {
 		if(!supports(userChannel.getNotificationService()))
 			return "";
+		setHeaders(ti, userChannel, ex);
 		String endpointTemplate = "smtp://%s:%s?username=%s&password=%s&mail.smtp.starttls.enable=true";
 		String endpoint = String.format(endpointTemplate, 
 				userChannel.getProperty("host"),userChannel.getProperty("port"),
@@ -27,8 +28,8 @@ public class EmailUserChannelProcessor implements UserChannelProcessor{
 		return endpoint;
 	}
 
-	@Override
-	public void setHeaders(TransactionInput ti, UserChannel userChannel, Exchange exchange) {
+	
+	private void setHeaders(TransactionInput ti, UserChannel userChannel, Exchange exchange) {
 		// TODO Auto-generated method stub
 		Message m = exchange.getIn();	
 		m.setHeader("To", ti.getUserDetails().get("email"));
