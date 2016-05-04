@@ -7,6 +7,7 @@ public class UserChannel {
 	private String name;
 	private String notificationService;
 	private Map<String,Object> properties = new HashMap<>();
+	private Map<String,String> endpointProperties = new HashMap<>();
 	
 	public String getName() {
 		return name;
@@ -35,6 +36,18 @@ public class UserChannel {
 	}
 	public Object setProperty(String prop, Object val){
 		return properties.put(prop, val);
+	}
+	public Map<String, String> getEndpointProperties() {
+		return endpointProperties;
+	}
+	public void setEndpointProperties(Map<String, String> endpointProperties) {
+		this.endpointProperties = endpointProperties;
+	}
+	public String getEndpointProperty(String prop){
+		return endpointProperties.get(prop);
+	}
+	public String setEndpointProperty(String prop, String val){
+		return endpointProperties.put(prop, val);
 	}
 	@Override
 	public int hashCode() {

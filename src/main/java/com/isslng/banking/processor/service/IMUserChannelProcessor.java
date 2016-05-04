@@ -1,5 +1,7 @@
 package com.isslng.banking.processor.service;
 
+import java.util.Map;
+
 import org.apache.camel.Exchange;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +19,12 @@ public class IMUserChannelProcessor implements UserChannelProcessor {
 	public String getEndpointUrl(TransactionInput ti, UserChannel userChannel, Exchange ex) {
 		if(!supports(userChannel.getNotificationService()))
 			return "";
-		String endpointTemplate = "xmpp://%s:%s/%s?user=%s&password=%s&serviceName=%s";
+		Map<String,String> endpointProperties = userChannel.getEndpointProperties();
+		String options = "";
+		if(endpointProperties != null && !endpointProperties.isEmpty())
+			 options = "&" +  endpointProperties.toString().replace("{", "")
+					.replace("}", "").replace(",", "&");
+		String endpointTemplate = "xmpp://%s:%s/%s?user=%s&password=%s&serviceName=%s" + options;
 		String endpoint = String.format(endpointTemplate, 
 				userChannel.getProperty("host"),userChannel.getProperty("port"),
 				ti.getUserDetails().get((String) userChannel.getProperty("userIdKey")),
