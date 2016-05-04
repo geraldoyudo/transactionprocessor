@@ -1,5 +1,7 @@
 package com.isslng.banking.processor.service;
 
+import java.util.Map;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.springframework.stereotype.Component;
@@ -20,7 +22,13 @@ public class EmailUserChannelProcessor implements UserChannelProcessor{
 		if(!supports(userChannel.getNotificationService()))
 			return "";
 		setHeaders(ti, userChannel, ex);
-		String endpointTemplate = "smtp://%s:%s?username=%s&password=%s&mail.smtp.starttls.enable=true";
+		//mail.smtp.starttls.enable=true"
+		Map<String,String> endpointProperties = userChannel.getEndpointProperties();
+		String options = "";
+		if(endpointProperties != null && !endpointProperties.isEmpty())
+			 options = "&" +  endpointProperties.toString().replace("{", "")
+					.replace("}", "").replace(",", "&");
+		String endpointTemplate = "smtp://%s:%s?username=%s&password=%s" + options;
 		String endpoint = String.format(endpointTemplate, 
 				userChannel.getProperty("host"),userChannel.getProperty("port"),
 				userChannel.getProperty("username"),userChannel.getProperty("password"));
