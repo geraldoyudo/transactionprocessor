@@ -6,7 +6,7 @@
 	<groupId>com.isslng.banking</groupId>
 	<artifactId>transaction-processor</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
+	<packaging>war</packaging>
 
 	<name>TransactionProcessor</name>
 	<description>An extendible transaction processor</description>
@@ -117,7 +117,7 @@
 		    <!-- use the same version as your Camel core version -->
 		</dependency>
 	</dependencies>
-	
+	<!-- 
 	<build>
 		<plugins>
 			<plugin>
@@ -126,6 +126,6 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+	-->
 
 </project>
