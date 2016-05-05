@@ -46,7 +46,11 @@ public class UserChannelResolver {
 				if(up.supports(userChannel.getNotificationService())){
 					System.out.println("Processing Endpoint");
 					exchange.setProperty(USER_CHANNELS_ITERATOR, iter);
-					return up.getEndpointUrl(ti,userChannel, exchange);
+					if(transaction instanceof TransactionInput)
+						return up.getEndpointUrl((TransactionInput) transaction,userChannel, exchange);
+					else{
+						return up.getEndpointUrl((TransactionOutput) transaction,userChannel, exchange);
+					}
 				}
 			}
 			

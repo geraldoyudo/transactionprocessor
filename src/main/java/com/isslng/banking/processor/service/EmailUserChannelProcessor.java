@@ -9,42 +9,49 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.isslng.banking.processor.entities.TransactionInput;
+import com.isslng.banking.processor.entities.TransactionOutput;
+import com.isslng.banking.processor.entities.TransactionReference;
 import com.isslng.banking.processor.entities.UserChannel;
 
 @Component
-public class EmailUserChannelProcessor implements UserChannelProcessor{
+public class EmailUserChannelProcessor extends UserChannelProcessor{
 	
 	@Override
 	public boolean supports(String serviceName) {
 		return (serviceName!= null && serviceName.equals("email"));
 	}
 	
-	@Override
-	public String getEndpointUrl(TransactionInput ti, UserChannel userChannel, Exchange ex) {
-		if(!supports(userChannel.getNotificationService()))
-			return "";
-		setHeaders(ti, userChannel, ex);
-		//mail.smtp.starttls.enable=true"
-		Map<String,String> endpointProperties = userChannel.getEndpointProperties();
-		String options = "";
-		if(endpointProperties != null && !endpointProperties.isEmpty())
-			 options = "&" +  endpointProperties.toString().replace("{", "")
-					.replace("}", "").replace(",", "&");
-		String endpointTemplate = "smtp://%s:%s?username=%s&password=%s" + options;
-		String endpoint = String.format(endpointTemplate, 
-				userChannel.getProperty("host"),userChannel.getProperty("port"),
-				userChannel.getProperty("username"),userChannel.getProperty("password"));
-		System.out.println(endpoint);
-		return endpoint;
-	}
 
-	
-	private void setHeaders(TransactionInput ti, UserChannel userChannel, Exchange exchange) {
-		// TODO Auto-generated method stub
+	@Override
+	protected void onSetHeaders(TransactionReference tRef, UserChannel userChannel, Exchange exchange) {
+		TransactionInput ti;
+		if(tRef instanceof TransactionInput){
+			ti = (TransactionInput) tRef;
+		}else{
+			TransactionOutput to = (TransactionOutput)tRef;
+			ti = to.getTransactionInput();
+		}
 		Message m = exchange.getIn();	
 		m.setHeader("To", ti.getUserDetails().get("email"));
 		m.setHeader("Subject", userChannel.getProperty("subject"));
 		m.setHeader("From", userChannel.getProperty("from"));
+	}
+
+	@Override
+	protected String getBasicEndpoint(TransactionReference tRef, UserChannel userChannel, Exchange exchange) {
+		String endpointTemplate = "smtp://%s:%s?username=%s&password=%s";
+		String endpoint = String.format(endpointTemplate, 
+				userChannel.getProperty("host"),userChannel.getProperty("port"),
+				userChannel.getProperty("username"),userChannel.getProperty("password"));
+		return endpoint;
+	}
+
+
+	@Override
+	protected void onSetupMessage(com.isslng.banking.processor.entities.Message m, Exchange ex) {
+		Message in = ex.getIn();
+		in.setHeader("Subject", m.getSubject());
+		in.setBody(m.getBody(), String.class);
 	}
 	
 }
