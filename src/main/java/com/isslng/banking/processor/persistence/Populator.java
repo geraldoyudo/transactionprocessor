@@ -41,7 +41,7 @@ public class Populator {
 			userChannel.setName("simple-email");
 			userChannel.setNotificationService("email");
 			userChannel.setProperty("from", "terra@isslng.com");
-			userChannel.setProperty("username", "terra");
+			userChannel.setProperty("username", "terra@isslng.com");
 			userChannel.setProperty("password", "Isslng1");
 			userChannel.setProperty("host", "mail.isslng.com");
 			userChannel.setProperty("port", "25");

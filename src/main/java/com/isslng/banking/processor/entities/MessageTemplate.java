@@ -4,15 +4,16 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
-public class MessageTemplate extends Message {
+public class MessageTemplate extends Resource {
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 2461191559535554332L;
 
-	@Id
-	private String Id;
+	
+	private String subject;
+	private String body;
 	
 	private String type = "velocity";
 	
@@ -21,7 +22,8 @@ public class MessageTemplate extends Message {
 	}
 	
 	public MessageTemplate(String subject, String body) {
-		super(subject,body);
+		this.subject = subject;
+		this.body = body;
 		// TODO Auto-generated constructor stub
 	}
 	
@@ -33,12 +35,20 @@ public class MessageTemplate extends Message {
 		this.type = type;
 	}
 
-	public String getId() {
-		return Id;
+	public String getSubject() {
+		return subject;
 	}
 
-	public void setId(String id) {
-		Id = id;
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
+
+	public String getBody() {
+		return body;
+	}
+
+	public void setBody(String body) {
+		this.body = body;
 	}
 	
 	

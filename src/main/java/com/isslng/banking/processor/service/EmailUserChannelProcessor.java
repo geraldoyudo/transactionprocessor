@@ -52,6 +52,7 @@ public class EmailUserChannelProcessor extends UserChannelProcessor{
 		Message in = ex.getIn();
 		in.setHeader("Subject", m.getSubject());
 		in.setBody(m.getBody(), String.class);
+		System.out.println(in.getBody().toString());
 	}
 	
 }

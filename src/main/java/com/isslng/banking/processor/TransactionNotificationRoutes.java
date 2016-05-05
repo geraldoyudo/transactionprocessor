@@ -1,5 +1,6 @@
 package com.isslng.banking.processor;
 
+import org.apache.camel.ExchangePattern;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.dataformat.JsonLibrary;
 import org.apache.velocity.Template;
@@ -18,8 +19,7 @@ public class TransactionNotificationRoutes extends RouteBuilder{
 					+ "(body,request.headers['notifyType'])}").ignoreInvalidEndpoints();
 		from("seda:user-notification")
 			.setProperty("transaction").spel("#{body}")
-			.log("USER ${headers.notifyType} ${body}")
-			.dynamicRouter(method(UserChannelResolver.class, "resolve"));
+			.dynamicRouter(  method(UserChannelResolver.class, "resolve"));
 	
 		from("seda:type-notification")
 			.setProperty("transaction").spel("#{body}")

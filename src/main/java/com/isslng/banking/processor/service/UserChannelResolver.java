@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.camel.DynamicRouter;
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangeProperty;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ public class UserChannelResolver {
 	@Autowired
 	OrganizationManager organizationManager;
 	
+	@DynamicRouter
 	public String resolve(@ExchangeProperty("transaction") Object transaction, Exchange exchange){
 		System.out.println("Resolve method called");
 		TransactionInput ti;
