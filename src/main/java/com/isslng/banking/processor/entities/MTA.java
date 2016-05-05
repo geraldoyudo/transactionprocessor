@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
 @CompoundIndex(name = "msgTemp_org_trans_notify", def = "{'messageTemplate.$id' : 1, "
-		+ "'orgCode' : 1, 'transactionCode' : 1, 'notificationType' : 1}")
+		+ "'orgCode' : 1, 'transactionCode' : 1, 'notificationType' : 1, 'channel': 1}")
 public class MTA extends Resource{
 	/**
 	 * 
@@ -21,6 +21,8 @@ public class MTA extends Resource{
 	@NotNull
 	private TransactionNotification notificationType;
 	private String transactionCode;
+	private String channel;
+	
 	public MTA() {
 		// TODO Auto-generated constructor stub
 	}
@@ -56,6 +58,15 @@ public class MTA extends Resource{
 	public void setTransactionCode(String transactionCode) {
 		this.transactionCode = transactionCode;
 	}
+
+	public String getChannel() {
+		return channel;
+	}
+
+	public void setChannel(String channel) {
+		this.channel = channel;
+	}
+	
 	
 	
 	

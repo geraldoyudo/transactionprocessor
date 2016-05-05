@@ -8,6 +8,6 @@ import com.isslng.banking.processor.entities.MTA;
 import com.isslng.banking.processor.entities.TransactionNotification;
 
 public interface MTARepository extends MongoRepository<MTA, String>{
-	List<MTA> findByOrgCodeAndTransactionCodeAndNotificationType(String orgCode
-			, String transactionCode, TransactionNotification notificationType);
+	List<MTA> findByOrgCodeAndTransactionCodeAndNotificationTypeAndChannel(String orgCode
+			, String transactionCode, TransactionNotification notificationType, String channel);
 }
