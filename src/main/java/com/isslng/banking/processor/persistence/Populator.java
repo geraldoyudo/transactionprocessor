@@ -9,10 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
+import com.isslng.banking.processor.entities.MessageTemplate;
 import com.isslng.banking.processor.entities.Organization;
 import com.isslng.banking.processor.entities.Processor;
+import com.isslng.banking.processor.entities.TransactionNotification;
 import com.isslng.banking.processor.entities.TransactionType;
 import com.isslng.banking.processor.entities.UserChannel;
+import com.isslng.banking.processor.managers.MTAManager;
 
 @Component
 public class Populator {
@@ -22,6 +25,8 @@ public class Populator {
 	ProcessorRepository pRepository;
 	@Autowired
 	OrganizationRepository orgRepository;
+	@Autowired
+	MTAManager mtaManager;
 	
 	@PostConstruct
 	public void initRepo(){
@@ -299,7 +304,16 @@ public class Populator {
 			t.setInputFields(inputFields);
 			t.setOutputFields(outputFields);
 			ttRepository.save(t);
-
+			
+			mtaManager.registerTemplate(new MessageTemplate("Transaction Completed", "Your transaction"
+					+ "was successful."), 
+					null, null, TransactionNotification.COMPLETED);
+			mtaManager.registerTemplate(new MessageTemplate("Transaction Rejected", "Your transaction"
+					+ "has been rejected."), 
+					null, null, TransactionNotification.REJECTED);
+			mtaManager.registerTemplate(new MessageTemplate("Transaction Approved", "Your transaction"
+					+ "has been approved."), 
+					null, null, TransactionNotification.APPROVED);
 
 		}
 		

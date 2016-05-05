@@ -4,6 +4,8 @@ import java.util.Map;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
+import org.apache.velocity.app.VelocityEngine;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.isslng.banking.processor.entities.TransactionInput;
@@ -11,12 +13,12 @@ import com.isslng.banking.processor.entities.UserChannel;
 
 @Component
 public class EmailUserChannelProcessor implements UserChannelProcessor{
-
+	
 	@Override
 	public boolean supports(String serviceName) {
 		return (serviceName!= null && serviceName.equals("email"));
 	}
-
+	
 	@Override
 	public String getEndpointUrl(TransactionInput ti, UserChannel userChannel, Exchange ex) {
 		if(!supports(userChannel.getNotificationService()))
