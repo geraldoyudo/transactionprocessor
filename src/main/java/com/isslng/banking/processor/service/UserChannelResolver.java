@@ -45,38 +45,35 @@ public class UserChannelResolver {
 		}
 		
 		UserChannel userChannel;
-		if(iter.hasNext()){
-			if(previous == null || !previous.contains("language:")){
-				userChannel = iter.next();
-				System.out.println("Modifying message body");
-				for(UserChannelProcessor up: userChannelProcessors){
-					if(up.supports(userChannel.getNotificationService())){
-						System.out.println("Processing message for Endpoint");		
-						if(transaction instanceof TransactionInput)
-							up.setUpChannel((TransactionInput) transaction,userChannel, exchange);
-						else{
-							up.setUpChannel((TransactionOutput) transaction,userChannel, exchange);
-						}
-						exchange.setProperty(USER_CHANNELS_ITERATOR, iter);
-						exchange.setProperty(USER_CHANNEL, userChannel);
-						return "language:simple:${header.messageBody}";
+		if(iter.hasNext() &&(previous == null || !previous.contains("language:"))){
+			
+			userChannel = iter.next();
+			System.out.println("Modifying message body");
+			for(UserChannelProcessor up: userChannelProcessors){
+				if(up.supports(userChannel.getNotificationService())){
+					System.out.println("Processing message for Endpoint");		
+					if(transaction instanceof TransactionInput)
+						up.setUpChannel((TransactionInput) transaction,userChannel, exchange);
+					else{
+						up.setUpChannel((TransactionOutput) transaction,userChannel, exchange);
 					}
+					exchange.setProperty(USER_CHANNELS_ITERATOR, iter);
+					exchange.setProperty(USER_CHANNEL, userChannel);
+					return "language:simple:${header.messageBody}";
 				}
-			}else{
-				userChannel = (UserChannel) exchange.getProperty(USER_CHANNEL);
-				for(UserChannelProcessor up: userChannelProcessors){
-					if(up.supports(userChannel.getNotificationService())){
-						System.out.println("Processing Endpoint");
-						if(transaction instanceof TransactionInput)
-							return up.getEndpointUrl((TransactionInput) transaction,userChannel, exchange);
-						else{
-							return up.getEndpointUrl((TransactionOutput) transaction,userChannel, exchange);
-						}
+			}
+		}else if(previous.contains("language:")){
+			userChannel = (UserChannel) exchange.getProperty(USER_CHANNEL);
+			for(UserChannelProcessor up: userChannelProcessors){
+				if(up.supports(userChannel.getNotificationService())){
+					System.out.println("Processing Endpoint");
+					if(transaction instanceof TransactionInput)
+						return up.getEndpointUrl((TransactionInput) transaction,userChannel, exchange);
+					else{
+						return up.getEndpointUrl((TransactionOutput) transaction,userChannel, exchange);
 					}
 				}
 			}
-			
-			
 		}
 		System.out.println("No endpoints left");
 		exchange.setProperty(USER_CHANNELS_ITERATOR, null);

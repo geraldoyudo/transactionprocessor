@@ -28,7 +28,9 @@ public abstract class UserChannelProcessor {
 	protected abstract void onSetupMessage(Message m, Exchange ex);
 	public final String getEndpointUrl(TransactionReference tRef, UserChannel userChannel, Exchange exchange){
 		onSetHeaders(tRef,userChannel, exchange);
-		return evaluateEnpointUrl(tRef, userChannel, exchange);
+		String url =  evaluateEnpointUrl(tRef, userChannel, exchange);
+		System.out.println(url);
+		return url;
 	}
 	public final void setUpChannel(TransactionReference tRef, UserChannel userChannel, Exchange exchange){
 		setUpMessage(tRef,userChannel, exchange);

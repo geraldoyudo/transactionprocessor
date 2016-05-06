@@ -41,6 +41,29 @@ public class MTAManager extends BasicRepositoryManager<MTARepository, MTA, Strin
 		}
 	}
 	
+	public MTA getByParameters(String channel, String orgCode, String transactionCode, 
+			TransactionNotification notificationType, boolean getChannelDefault){
+		try{
+			return managedRepository
+					.findByOrgCodeAndTransactionCodeAndNotificationTypeAndChannel(orgCode
+							, transactionCode, notificationType, channel).get(0);
+		}catch(IndexOutOfBoundsException ex){
+			if(getChannelDefault){
+				try{
+					return managedRepository
+							.findByOrgCodeAndTransactionCodeAndNotificationTypeAndChannel(orgCode
+									, transactionCode, notificationType, null).get(0);
+				}catch(IndexOutOfBoundsException e){
+					return null;
+				}
+			}else{
+				return null;
+			}
+			
+		}
+	}
+	
+	
 	public MTA registerTemplate (MessageTemplate mt, String orgCode, 
 			String transactionCode, 
 			TransactionNotification notificationType){
@@ -60,7 +83,7 @@ public class MTAManager extends BasicRepositoryManager<MTARepository, MTA, Strin
 			String transactionCode, 
 			TransactionNotification notificationType){
 		mt = mtManager.save(mt);
-		MTA mta = getByParameters( channel, orgCode, transactionCode, notificationType);
+		MTA mta = getByParameters( channel, orgCode, transactionCode, notificationType, false);
 		if(mta == null){
 			mta = new MTA();
 			mta.setOrgCode(orgCode);

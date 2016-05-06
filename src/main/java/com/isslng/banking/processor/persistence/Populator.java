@@ -305,14 +305,30 @@ public class Populator {
 			t.setOutputFields(outputFields);
 			ttRepository.save(t);
 			
-			mtaManager.registerTemplate(new MessageTemplate("Transaction Completed", "Your transaction"
-					+ "was successful."), 
+			mtaManager.registerTemplate(new MessageTemplate("Ref $ti.id: Transaction Completed",
+					"Your transaction with ref number $ti.id and "
+					+ "code $ti.code was successful."),
 					null, null, TransactionNotification.COMPLETED);
-			mtaManager.registerTemplate(new MessageTemplate("Transaction Rejected", "Your transaction"
-					+ "has been rejected."), 
+			mtaManager.registerTemplate(new MessageTemplate("Ref $ti.id: Transaction Rejected",
+					"Your transaction with ref number $ti.id and "
+					+ "code $ti.code has been rejected."),
 					null, null, TransactionNotification.REJECTED);
-			mtaManager.registerTemplate(new MessageTemplate("Transaction Approved", "Your transaction"
-					+ "has been approved."), 
+			mtaManager.registerTemplate(new MessageTemplate("Ref $ti.id: Transaction Approved",
+					"Your transaction with ref number $ti.id and "
+					+ "code $ti.code has been approved."),
+					null, null, TransactionNotification.APPROVED);
+			
+			mtaManager.registerTemplate(new MessageTemplate("",
+					"Trans ($ti.id) - ($ti.code)"
+					+ "successful."), "google-chat",
+					null, null, TransactionNotification.COMPLETED);
+			mtaManager.registerTemplate(new MessageTemplate("",
+					"Trans ($ti.id) - ($ti.code)"
+							+ "rejected."), "google-chat",
+					null, null, TransactionNotification.REJECTED);
+			mtaManager.registerTemplate(new MessageTemplate("",
+					"Trans ($ti.id) - ($ti.code)"
+							+ "approved."), "google-chat",
 					null, null, TransactionNotification.APPROVED);
 
 		}
