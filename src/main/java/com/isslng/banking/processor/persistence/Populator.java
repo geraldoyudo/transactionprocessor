@@ -9,10 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
+import com.isslng.banking.processor.entities.MessageTemplate;
 import com.isslng.banking.processor.entities.Organization;
 import com.isslng.banking.processor.entities.Processor;
+import com.isslng.banking.processor.entities.TransactionNotification;
 import com.isslng.banking.processor.entities.TransactionType;
 import com.isslng.banking.processor.entities.UserChannel;
+import com.isslng.banking.processor.managers.MTAManager;
 
 @Component
 public class Populator {
@@ -22,6 +25,8 @@ public class Populator {
 	ProcessorRepository pRepository;
 	@Autowired
 	OrganizationRepository orgRepository;
+	@Autowired
+	MTAManager mtaManager;
 	
 	@PostConstruct
 	public void initRepo(){
@@ -36,7 +41,7 @@ public class Populator {
 			userChannel.setName("simple-email");
 			userChannel.setNotificationService("email");
 			userChannel.setProperty("from", "terra@isslng.com");
-			userChannel.setProperty("username", "terra");
+			userChannel.setProperty("username", "terra@isslng.com");
 			userChannel.setProperty("password", "Isslng1");
 			userChannel.setProperty("host", "mail.isslng.com");
 			userChannel.setProperty("port", "25");
@@ -299,7 +304,32 @@ public class Populator {
 			t.setInputFields(inputFields);
 			t.setOutputFields(outputFields);
 			ttRepository.save(t);
-
+			
+			mtaManager.registerTemplate(new MessageTemplate("Ref $ti.id: Transaction Completed",
+					"Your transaction with ref number $ti.id and "
+					+ "code $ti.code was successful."),
+					null, null, TransactionNotification.COMPLETED);
+			mtaManager.registerTemplate(new MessageTemplate("Ref $ti.id: Transaction Rejected",
+					"Your transaction with ref number $ti.id and "
+					+ "code $ti.code has been rejected."),
+					null, null, TransactionNotification.REJECTED);
+			mtaManager.registerTemplate(new MessageTemplate("Ref $ti.id: Transaction Approved",
+					"Your transaction with ref number $ti.id and "
+					+ "code $ti.code has been approved."),
+					null, null, TransactionNotification.APPROVED);
+			
+			mtaManager.registerTemplate(new MessageTemplate("",
+					"Trans ($ti.id) - ($ti.code)"
+					+ "successful."), "google-chat",
+					null, null, TransactionNotification.COMPLETED);
+			mtaManager.registerTemplate(new MessageTemplate("",
+					"Trans ($ti.id) - ($ti.code)"
+							+ "rejected."), "google-chat",
+					null, null, TransactionNotification.REJECTED);
+			mtaManager.registerTemplate(new MessageTemplate("",
+					"Trans ($ti.id) - ($ti.code)"
+							+ "approved."), "google-chat",
+					null, null, TransactionNotification.APPROVED);
 
 		}
 		

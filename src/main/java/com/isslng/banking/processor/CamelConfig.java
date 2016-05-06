@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.camel.component.servlet.CamelHttpTransportServlet;
+import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -49,5 +50,10 @@ public class CamelConfig {
     @Bean
     public LocalValidatorFactoryBean validator(){
     	return new LocalValidatorFactoryBean();
+    }
+    
+    @Bean
+    public VelocityEngine velocityEngine(){
+    	return new VelocityEngine();
     }
 }

@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangeProperty;
+import org.apache.camel.Header;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,12 +18,15 @@ import com.isslng.banking.processor.managers.OrganizationManager;
 @Component
 public class UserChannelResolver {
 	private static final String USER_CHANNELS_ITERATOR = "user-channels-iterator";
+	private static final String USER_CHANNEL = "user-channel";
 	@Autowired
 	Collection<UserChannelProcessor> userChannelProcessors;
 	@Autowired
 	OrganizationManager organizationManager;
 	
-	public String resolve(@ExchangeProperty("transaction") Object transaction, Exchange exchange){
+	
+	public String resolve(@ExchangeProperty("transaction") Object transaction, Exchange exchange,
+			@Header(Exchange.SLIP_ENDPOINT) String previous) {
 		System.out.println("Resolve method called");
 		TransactionInput ti;
 		if(transaction instanceof TransactionInput){
@@ -40,19 +44,42 @@ public class UserChannelResolver {
 			iter =  (Iterator<UserChannel>)iterValue;
 		}
 		
-		if(iter.hasNext()){
-			UserChannel userChannel = iter.next();
+		UserChannel userChannel;
+		if(iter.hasNext() &&(previous == null || !previous.contains("language:"))){
+			
+			userChannel = iter.next();
+			System.out.println("Modifying message body");
+			for(UserChannelProcessor up: userChannelProcessors){
+				if(up.supports(userChannel.getNotificationService())){
+					System.out.println("Processing message for Endpoint");		
+					if(transaction instanceof TransactionInput)
+						up.setUpChannel((TransactionInput) transaction,userChannel, exchange);
+					else{
+						up.setUpChannel((TransactionOutput) transaction,userChannel, exchange);
+					}
+					exchange.setProperty(USER_CHANNELS_ITERATOR, iter);
+					exchange.setProperty(USER_CHANNEL, userChannel);
+					return "language:simple:${header.messageBody}";
+				}
+			}
+		}else if(previous.contains("language:")){
+			userChannel = (UserChannel) exchange.getProperty(USER_CHANNEL);
 			for(UserChannelProcessor up: userChannelProcessors){
 				if(up.supports(userChannel.getNotificationService())){
 					System.out.println("Processing Endpoint");
-					exchange.setProperty(USER_CHANNELS_ITERATOR, iter);
-					return up.getEndpointUrl(ti,userChannel, exchange);
+					if(transaction instanceof TransactionInput)
+						return up.getEndpointUrl((TransactionInput) transaction,userChannel, exchange);
+					else{
+						return up.getEndpointUrl((TransactionOutput) transaction,userChannel, exchange);
+					}
 				}
 			}
-			
 		}
 		System.out.println("No endpoints left");
 		exchange.setProperty(USER_CHANNELS_ITERATOR, null);
+		
+		
+		
 		return "";
 	}
 }

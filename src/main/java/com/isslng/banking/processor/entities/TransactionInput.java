@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
-public class TransactionInput extends  Resource{
+public class TransactionInput extends  Resource implements TransactionReference{
 	/**
 	 * 
 	 */

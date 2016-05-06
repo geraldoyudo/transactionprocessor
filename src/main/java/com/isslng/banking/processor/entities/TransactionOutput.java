@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
-public class TransactionOutput extends Resource {
+public class TransactionOutput extends Resource implements TransactionReference {
 	/**
 	 * 
 	 */
