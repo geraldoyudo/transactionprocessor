@@ -33,7 +33,6 @@ public class EmailUserChannelProcessor extends UserChannelProcessor{
 		}
 		Message m = exchange.getIn();	
 		m.setHeader("To", ti.getUserDetails().get("email"));
-		m.setHeader("Subject", userChannel.getProperty("subject"));
 		m.setHeader("From", userChannel.getProperty("from"));
 	}
 

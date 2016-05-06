@@ -28,10 +28,11 @@ public abstract class UserChannelProcessor {
 	protected abstract void onSetupMessage(Message m, Exchange ex);
 	public final String getEndpointUrl(TransactionReference tRef, UserChannel userChannel, Exchange exchange){
 		onSetHeaders(tRef,userChannel, exchange);
-		setUpMessage(tRef,userChannel, exchange);
 		return evaluateEnpointUrl(tRef, userChannel, exchange);
 	}
-	
+	public final void setUpChannel(TransactionReference tRef, UserChannel userChannel, Exchange exchange){
+		setUpMessage(tRef,userChannel, exchange);
+	}
 	private void setUpMessage(TransactionReference tRef, UserChannel userChannel, Exchange exchange){
 		TransactionInput ti;
 		Map<String, Object> context = new HashMap<>();
@@ -49,6 +50,7 @@ public abstract class UserChannelProcessor {
 						(String) exchange.getIn().getHeader("notifyType")));
 		Message m = mtResolver.processTemplate(context, mt);
 		onSetupMessage(m, exchange);
+		exchange.getIn().setHeader("messageBody", m.getBody());
 	}
 	
 	private String evaluateEnpointUrl(TransactionReference tRef, UserChannel userChannel, Exchange exchange){
@@ -61,6 +63,7 @@ public abstract class UserChannelProcessor {
 					.replace("}", "").replace(",", "&");
 		
 		String endpoint = basicEndpoint + options;
+		
 		return endpoint;
 	}
 }
