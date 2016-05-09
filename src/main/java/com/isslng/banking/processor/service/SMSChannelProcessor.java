@@ -31,9 +31,10 @@ public class SMSChannelProcessor extends UserChannelProcessor{
 		Message m = exchange.getIn();	
 		m.setHeader("to", ti.getUserDetails().get("phone"));
 		m.setHeader("from", userChannel.getProperty("from"));
-		String username = (String) ti.getUserDetails().get("username");
-		String password = (String) ti.getUserDetails().get("password");
+		String username = (String) userChannel.getProperty("username");
+		String password = (String) userChannel.getProperty("password");
 		String authentication = String.format("%s:%s", username,password);
+		System.out.println(authentication);
 		authentication = Base64Utils.encodeToString(authentication.getBytes());
 		m.setHeader("Authorization", String.format("Basic %s", authentication));
 	}
