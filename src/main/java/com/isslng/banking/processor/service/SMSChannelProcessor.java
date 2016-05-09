@@ -3,18 +3,19 @@ package com.isslng.banking.processor.service;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Base64Utils;
 
 import com.isslng.banking.processor.entities.TransactionInput;
 import com.isslng.banking.processor.entities.TransactionOutput;
 import com.isslng.banking.processor.entities.TransactionReference;
 import com.isslng.banking.processor.entities.UserChannel;
+import com.thoughtworks.xstream.core.util.Base64Encoder;
 
 @Component
-public class EmailUserChannelProcessor extends UserChannelProcessor{
-	
+public class SMSChannelProcessor extends UserChannelProcessor{
 	@Override
 	public boolean supports(String serviceName) {
-		return (serviceName!= null && serviceName.equals("email"));
+		return (serviceName!= null && serviceName.equals("sms"));
 	}
 	
 
@@ -28,26 +29,23 @@ public class EmailUserChannelProcessor extends UserChannelProcessor{
 			ti = to.getTransactionInput();
 		}
 		Message m = exchange.getIn();	
-		m.setHeader("To", ti.getUserDetails().get("email"));
-		m.setHeader("From", userChannel.getProperty("from"));
+		m.setHeader("to", ti.getUserDetails().get("phone"));
+		m.setHeader("from", userChannel.getProperty("from"));
+		String username = (String) userChannel.getProperty("username");
+		String password = (String) userChannel.getProperty("password");
+		String authentication = String.format("%s:%s", username,password);
+		System.out.println(authentication);
+		authentication = Base64Utils.encodeToString(authentication.getBytes());
+		m.setHeader("Authorization", String.format("Basic %s", authentication));
 	}
 
 	@Override
 	protected String getBasicEndpoint(TransactionReference tRef, UserChannel userChannel, Exchange exchange) {
-		String endpointTemplate = "smtp://%s:%s?username=%s&password=%s";
-		String endpoint = String.format(endpointTemplate, 
-				userChannel.getProperty("host"),userChannel.getProperty("port"),
-				userChannel.getProperty("username"),userChannel.getProperty("password"));
-		return endpoint;
+		return "seda:sms";
 	}
 
 
 	@Override
 	protected void onSetupMessage(com.isslng.banking.processor.entities.Message m, Exchange ex) {
-		Message in = ex.getIn();
-		in.setHeader("Subject", m.getSubject());
-		in.setBody(m.getBody(), String.class);
-		System.out.println(in.getBody().toString());
 	}
-	
 }

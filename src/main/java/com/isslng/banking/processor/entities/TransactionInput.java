@@ -6,9 +6,11 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
+@CompoundIndex(name = "org_ref", def = "{'orgCode': 1, 'ref': 1}")
 public class TransactionInput extends  Resource implements TransactionReference{
 	/**
 	 * 
@@ -27,6 +29,7 @@ public class TransactionInput extends  Resource implements TransactionReference{
 	private String orgCode;
 	private Map<String,Object> transactionFields = new HashMap<>();
 	private Map<String,Object> userDetails = new HashMap<>();
+	private long ref;
 	
 	private boolean needsApproval = false;
 	private boolean approved = true;
@@ -94,6 +97,12 @@ public class TransactionInput extends  Resource implements TransactionReference{
 	}
 	public void setUserDetails(Map<String, Object> userDetails) {
 		this.userDetails = userDetails;
+	}
+	public long getRef() {
+		return ref;
+	}
+	public void setRef(long ref) {
+		this.ref = ref;
 	}
 	
 	
