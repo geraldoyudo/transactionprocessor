@@ -1,7 +1,10 @@
 package com.isslng.banking.processor.service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.camel.Exchange;
@@ -26,7 +29,7 @@ public class UserChannelResolver {
 	
 	
 	public String resolve(@ExchangeProperty("transaction") Object transaction, Exchange exchange,
-			@Header(Exchange.SLIP_ENDPOINT) String previous) {
+			@Header(Exchange.SLIP_ENDPOINT) String previous, @Header("notifyType") String notifyType) {
 		System.out.println("Resolve method called");
 		TransactionInput ti;
 		if(transaction instanceof TransactionInput){
@@ -39,6 +42,21 @@ public class UserChannelResolver {
 		Iterator<UserChannel> iter;
 		if(iterValue == null){
 			userChannels = organizationManager.getByCode(ti.getOrgCode()).getUserChannels();
+			Object ucObject = ti.meta("userChannels");
+			if(ucObject != null){
+				Map<String, List<String>> channelMap = (Map<String,List<String>>)ucObject;
+				Object channelObj = channelMap.get(notifyType);
+				if(channelObj != null){
+					List<String> acceptedChannels = (List<String>)channelObj;
+					List<UserChannel> channels = new ArrayList<>(userChannels);
+					for(UserChannel c: channels){
+						if(!acceptedChannels.contains(c.getName())){
+							userChannels.remove(c);
+						}
+							
+					}
+				}
+			}
 			iter = userChannels.iterator();
 		}else{
 			iter =  (Iterator<UserChannel>)iterValue;
