@@ -13,7 +13,7 @@ public class TransactionNotificationRoutes extends RouteBuilder{
 
 	@Override
 	public void configure() throws Exception {
-		from("direct:notifications")
+		from("seda:notifications")
 			.log("${headers.notifyType} ${body}")
 			.recipientList().spel("#{@notificationSlipManager.getNotificationSlips"
 					+ "(body,request.headers['notifyType'])}").ignoreInvalidEndpoints();

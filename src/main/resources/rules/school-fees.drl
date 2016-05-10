@@ -1,6 +1,7 @@
 package com.isslng.banking.processor.drools;
 
 import com.isslng.banking.processor.entities.TransactionInput;
+import com.isslng.banking.processor.utils.TransactionEvaluatorUtils;
 import java.util.Map;
 import java.util.ArrayList;
 
@@ -10,10 +11,12 @@ rule "Notify user for customer accounts starting with 70"
 	when
 		$ti : TransactionInput(fieldStartsWith(transactionFields, "contraAccount", "70"))
 	then
-		ArrayList $levels = new ArrayList();
-		$levels.add("USER");
-		$ti.meta("COMPLETED",$levels);
+		TransactionEvaluatorUtils.setUserNotificationChannels($ti, "COMPLETED", "simple-email");
+		TransactionEvaluatorUtils.setUserNotificationChannels($ti, "APPROVED", "simple-sms");
+		TransactionEvaluatorUtils.setNotificationLevels($ti, "ALL", "USER");
+		$ti.setNeedsApproval(true);
 	end
+
 
 rule "Require approval for transactions greater than 500000"
 	when
