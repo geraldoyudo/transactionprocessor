@@ -1,7 +1,9 @@
 package com.isslng.banking.processor.entities;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.validation.constraints.NotNull;
@@ -29,6 +31,7 @@ public class TransactionInput extends  Resource implements TransactionReference{
 	private String orgCode;
 	private Map<String,Object> transactionFields = new HashMap<>();
 	private Map<String,Object> userDetails = new HashMap<>();
+	private List<String> outputRefs = new ArrayList<>();
 	private long ref;
 	
 	private boolean needsApproval = false;
@@ -103,6 +106,12 @@ public class TransactionInput extends  Resource implements TransactionReference{
 	}
 	public void setRef(long ref) {
 		this.ref = ref;
+	}
+	public List<String> getOutputRefs() {
+		return outputRefs;
+	}
+	public void setOutputRefs(List<String> outputRefs) {
+		this.outputRefs = outputRefs;
 	}
 	
 	
