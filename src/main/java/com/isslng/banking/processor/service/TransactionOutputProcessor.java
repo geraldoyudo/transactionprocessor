@@ -8,10 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.stereotype.Component;
 
+import com.isslng.banking.processor.entities.ExternalResultInput;
 import com.isslng.banking.processor.entities.TransactionInput;
 import com.isslng.banking.processor.entities.TransactionOutput;
 import com.isslng.banking.processor.entities.TransactionStatus;
 import com.isslng.banking.processor.entities.TransactionType;
+import com.isslng.banking.processor.exception.TransactionValidatorException;
+import com.isslng.banking.processor.managers.TransactionInputManager;
 import com.isslng.banking.processor.managers.TransactionOutputManager;
 import com.isslng.banking.processor.managers.TransactionTypeManager;
 import com.isslng.banking.processor.persistence.TransactionOutputProjection;
@@ -22,6 +25,8 @@ public class TransactionOutputProcessor {
 	private TransactionTypeManager ttManager;
 	@Autowired
 	private TransactionOutputManager toManager;
+	@Autowired
+	private TransactionInputManager tiManager;
 	@Autowired
     private ProjectionFactory projectionFactory;
 	
@@ -45,6 +50,8 @@ public class TransactionOutputProcessor {
 		}
 		to.setOutputFields(outMap);
 		to = toManager.save(to);
+		ti.getOutputRefs().add(to.getId());
+		tiManager.save(ti);
 		return to;
 	}
 	public TransactionOutput processOutput(Map<String,Object> output,  Exchange exchange){
@@ -68,10 +75,30 @@ public class TransactionOutputProcessor {
 		}
 		to.setOutputFields(output);
 		to = toManager.save(to);
+		ti.getOutputRefs().add(to.getId());
+		tiManager.save(ti);
 		return to;
+	}
+	
+	public TransactionOutput processOutput(ExternalResultInput extOutput, Exchange exchange){
+		TransactionInput ti = tiManager.get(extOutput.getId());
+		if( ti.meta("external")== null || !(boolean)ti.meta("external")){
+			throw new TransactionValidatorException("Transaction is not an external one");
+		}
+		if(!ti.isApproved()){
+			throw new TransactionValidatorException("Transaction has not been approved");
+		}
+		if(ti.isApprovalRejected()){
+			throw new TransactionValidatorException("Transaction has been rejected earlier");
+		}
+		ti.meta("processor", extOutput.getProcessor());
+		ti = tiManager.save(ti);
+		exchange.setProperty("transactionInput", ti);
+		return processOutput(extOutput.getOutput(),exchange);
 	}
 	public TransactionOutputProjection formatOutput(TransactionOutput to){
 		return projectionFactory.createProjection(TransactionOutputProjection.class, to);
 	}
+
 	
 }

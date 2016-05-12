@@ -8,6 +8,7 @@ import org.apache.camel.model.dataformat.JsonLibrary;
 import org.springframework.stereotype.Component;
 
 import com.isslng.banking.processor.entities.ApprovalInput;
+import com.isslng.banking.processor.entities.ExternalResultInput;
 import com.isslng.banking.processor.entities.TransactionInput;
 import com.isslng.banking.processor.entities.TransactionNotification;
 import com.isslng.banking.processor.exception.TransactionValidatorException;
@@ -32,6 +33,10 @@ public class TransactionRoutesDefinition extends RouteBuilder{
 	        .to("bean:approvalManager")
 	        .to("direct:processTransaction");
         
+        from("servlet:///resolve?httpMethodRestrict=POST")
+    	.unmarshal().json(JsonLibrary.Jackson, ExternalResultInput.class)
+        .to("direct:output");
+        
         from("direct:processTransaction")
         	.choice()
 	        	.when(spel("#{body.approvalRejected}"))
@@ -51,13 +56,26 @@ public class TransactionRoutesDefinition extends RouteBuilder{
         	.log("Transaction to be approved = ${body.id}")
         	.transform().constant("Transaction has been sent for approval");
         
+        from("direct:processExternalTransaction")
+	    	.log("External Transaction = ${body.id}")
+	    	.marshal().json(JsonLibrary.Jackson);
+	    	
         from("direct:processApprovedTransaction")
-        	.setProperty("transactionInput").spel("#{body}")
-	        .marshal().json(JsonLibrary.Jackson)
-	        .setExchangePattern(ExchangePattern.InOut)
-	        .recipientList(spel("#{@transactionTypeManager.getPrimaryProcessor"
-	        		+ "(exchange.getProperty('transactionInput').code).getUrl()}?jmsMessageType=Object"))
-			.to("bean:transactionOutputProcessor")
+        	.choice()
+        	.when(spel("#{@transactionTypeManager.getPrimaryProcessor(body.code) == null}"))
+				.to("bean:transactionInputManager?method=externalize")
+				.to("direct:processExternalTransaction")
+			.otherwise()
+	        	.setProperty("transactionInput").spel("#{body}")
+		        .marshal().json(JsonLibrary.Jackson)
+		        .setExchangePattern(ExchangePattern.InOut)
+		        .recipientList(spel("#{@transactionTypeManager.getPrimaryProcessor"
+		        		+ "(exchange.getProperty('transactionInput').code).getUrl()}?jmsMessageType=Object"))
+				.to("direct:output")
+			.end();
+        
+        from("direct:output")
+	        .to("bean:transactionOutputProcessor")
 			.wireTap("direct:secondaryOuptutProcessing")
 			.choice()
 				.when(spel("#{!exchange.getProperty('transactionInput').needsApproval}"))
