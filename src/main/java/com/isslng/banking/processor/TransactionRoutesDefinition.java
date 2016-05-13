@@ -2,6 +2,7 @@ package com.isslng.banking.processor;
 
 import static org.apache.camel.language.spel.SpelExpression.spel;
 
+import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.dataformat.JsonLibrary;
@@ -11,14 +12,14 @@ import com.isslng.banking.processor.entities.ApprovalInput;
 import com.isslng.banking.processor.entities.ExternalResultInput;
 import com.isslng.banking.processor.entities.TransactionInput;
 import com.isslng.banking.processor.entities.TransactionNotification;
-import com.isslng.banking.processor.exception.TransactionValidatorException;
 
 @Component
 public class TransactionRoutesDefinition extends RouteBuilder{
 
 	@Override
 	public void configure() throws Exception {
-	    
+		
+		errorHandler(deadLetterChannel("direct:handleError"));
         from("servlet:///process?httpMethodRestrict=POST")
 	        .unmarshal().json(JsonLibrary.Jackson, TransactionInput.class)
 	        .to("bean:transactionValidator")
@@ -100,8 +101,18 @@ public class TransactionRoutesDefinition extends RouteBuilder{
 	    	.setHeader("notifyType").constant(TransactionNotification.REJECTED.toString())
 		    .wireTap("seda:notifications")
 	    	.transform().constant("Transaction rejected by issuer.");
-	
-	   
+	    
+	    from("direct:handleError")
+	    	.transform().spel("#{exchange.getProperty(Exchange.EXCEPTION_CAUGHT)}")
+	    	.wireTap("direct:log")
+	    	.setHeader(Exchange.HTTP_RESPONSE_CODE, constant(400))	
+	    	.to("bean:exceptionDisplay")
+	    	.marshal().json(JsonLibrary.Jackson);
+	    
+	    from("direct:log")  
+	    .marshal().json(JsonLibrary.Jackson)
+	    .log("${body}");
+	    
 	}
 
 }
