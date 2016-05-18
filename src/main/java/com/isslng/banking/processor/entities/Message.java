@@ -19,7 +19,7 @@ public class Message implements Serializable{
 		this.subject = subject;
 		this.body = body;
 	}
-	
+	 
 	public String getSubject() {
 		return subject;
 	}
