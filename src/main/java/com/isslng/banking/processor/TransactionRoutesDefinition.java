@@ -76,6 +76,7 @@ public class TransactionRoutesDefinition extends RouteBuilder{
 			.end();
         
         from("direct:output")
+        	.to("bean:transactionOutputProcessor?method=sanitizeOutput")
 	        .to("bean:transactionOutputProcessor")
 			.wireTap("direct:secondaryOuptutProcessing")
 			.choice()

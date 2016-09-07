@@ -30,6 +30,13 @@ public class TransactionOutputProcessor {
 	@Autowired
     private ProjectionFactory projectionFactory;
 	
+	public Object sanitizeOutput(Object object){
+		if(object == null){
+			return "";
+		}else{
+			return object;
+		}
+	}
 	public TransactionOutput processOutput(String output, Exchange exchange){
 		TransactionInput ti = (TransactionInput) exchange.getProperty("transactionInput");
 		TransactionType tt = ttManager.getByCode(ti.getCode());
