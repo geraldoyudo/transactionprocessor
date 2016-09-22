@@ -1,5 +1,7 @@
 package com.isslng.banking.processor.service;
 
+import java.util.Map;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.springframework.stereotype.Component;
@@ -9,7 +11,6 @@ import com.isslng.banking.processor.entities.TransactionInput;
 import com.isslng.banking.processor.entities.TransactionOutput;
 import com.isslng.banking.processor.entities.TransactionReference;
 import com.isslng.banking.processor.entities.UserChannel;
-import com.thoughtworks.xstream.core.util.Base64Encoder;
 
 @Component
 public class SMSChannelProcessor extends UserChannelProcessor{
@@ -47,5 +48,18 @@ public class SMSChannelProcessor extends UserChannelProcessor{
 
 	@Override
 	protected void onSetupMessage(com.isslng.banking.processor.entities.Message m, Exchange ex) {
+	}
+
+
+	@Override
+	protected boolean isValid(TransactionInput ti, UserChannel channel) {
+		Map<String,Object> userDetails = ti.getUserDetails();
+		if(channel == null)
+			return false;
+		if(channel.getProperty("username") == null || channel.getProperty("password") == null || channel.getProperty("from") == null)
+			return false;
+		if(userDetails == null || userDetails.get("phone") == null)
+			return false;
+		return true;
 	}
 }

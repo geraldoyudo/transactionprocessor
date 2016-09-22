@@ -25,7 +25,6 @@ public class DroolsImporter {
 			URL url = this.getClass().getResource("/rules");
 			
 			File dest = new File(url.toURI());
-			
 			    FileUtils.copyDirectory(source, dest);
 			    System.out.println( String.format("Files for %s successfully loaded",rulesFolder));
 			} catch (IOException e) {
