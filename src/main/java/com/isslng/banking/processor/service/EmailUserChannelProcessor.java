@@ -1,5 +1,7 @@
 package com.isslng.banking.processor.service;
 
+import java.util.Map;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.springframework.stereotype.Component;
@@ -50,4 +52,16 @@ public class EmailUserChannelProcessor extends UserChannelProcessor{
 		System.out.println(in.getBody().toString());
 	}
 	
+	@Override
+	protected boolean isValid(TransactionInput ti, UserChannel channel) {
+		Map<String,Object> userDetails = ti.getUserDetails();
+		if(channel == null)
+			return false;
+		if(channel.getProperty("username") == null || channel.getProperty("password") == null || channel.getProperty("from") == null
+				|| channel.getProperty("host") == null || channel.getProperty("port") == null)
+			return false;
+		if(userDetails == null || userDetails.get("email") == null)
+			return false;
+		return true;
+	}
 }

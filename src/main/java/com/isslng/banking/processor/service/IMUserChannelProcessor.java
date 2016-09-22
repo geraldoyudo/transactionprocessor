@@ -1,5 +1,7 @@
 package com.isslng.banking.processor.service;
 
+import java.util.Map;
+
 import org.apache.camel.Exchange;
 import org.springframework.stereotype.Component;
 
@@ -45,6 +47,19 @@ public class IMUserChannelProcessor extends UserChannelProcessor {
 	protected void onSetupMessage(Message m, Exchange exchange) {
 		exchange.getIn().setBody(m.getBody());
 	}
-
+	
+	@Override
+	protected boolean isValid(TransactionInput ti, UserChannel channel) {
+		Map<String,Object> userDetails = ti.getUserDetails();
+		if(channel == null)
+			return false;
+		if(channel.getProperty("username") == null || channel.getProperty("password") == null || channel.getProperty("from") == null
+				|| channel.getProperty("host") == null || channel.getProperty("port") == null || channel.getProperty("userIdKey") == null
+				|| channel.getProperty("serviceName") == null)
+			return false;
+		if(userDetails == null || userDetails.get(channel.getProperty("userIdKey")) == null)
+			return false;
+		return true;
+	}
 	
 }

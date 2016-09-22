@@ -20,6 +20,7 @@ public abstract class UserChannelProcessor {
 	private MTAManager mtaManager;
 	@Autowired
 	private MessageTemplateResolver mtResolver;
+	public static final String DEAD_QUEUE = "invalid";
 	
 	public abstract boolean supports(String serviceName);
 	
@@ -56,6 +57,8 @@ public abstract class UserChannelProcessor {
 	}
 	
 	private String evaluateEnpointUrl(TransactionReference tRef, UserChannel userChannel, Exchange exchange){
+		if(!isValid(getTransactionInput(tRef), userChannel))
+			return "invalid";
 		String basicEndpoint = getBasicEndpoint(tRef, userChannel, exchange);
 		
 		Map<String,String> endpointProperties = userChannel.getEndpointProperties();
@@ -67,5 +70,17 @@ public abstract class UserChannelProcessor {
 		String endpoint = basicEndpoint + options;
 		
 		return endpoint;
+	}
+	
+	protected abstract boolean isValid(TransactionInput ti, UserChannel channel);
+	protected static TransactionInput getTransactionInput(TransactionReference tRef ){
+		TransactionInput ti;
+		if(tRef instanceof TransactionInput){
+			ti = (TransactionInput) tRef;
+		}else{
+			TransactionOutput to = (TransactionOutput)tRef;
+			ti = to.getTransactionInput();
+		}
+		return ti;
 	}
 }
