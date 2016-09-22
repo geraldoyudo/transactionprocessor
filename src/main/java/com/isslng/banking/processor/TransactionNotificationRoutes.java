@@ -19,7 +19,8 @@ public class TransactionNotificationRoutes extends RouteBuilder{
 					+ "(body,request.headers['notifyType'])}").ignoreInvalidEndpoints();
 		from("seda:user-notification")
 			.setProperty("transaction").spel("#{body}")
-			.dynamicRouter(  method(UserChannelResolver.class, "resolve"));
+			.dynamicRouter(  method(UserChannelResolver.class, "resolve"))
+			.ignoreInvalidEndpoints();
 	
 		from("seda:type-notification")
 			.setProperty("transaction").spel("#{body}")
